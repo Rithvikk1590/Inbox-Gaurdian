@@ -22,8 +22,10 @@ def sus_keywords_rule2(risk_points, subject, body):
     for word in sus_keywords:
         if word in subject.lower():
             risk_points += 20
+            print(f"Suspicious keyword {word} found in subject. Be careful!")
         
         if word in body.lower():
             risk_points += 10
+            print(f"Suspicious keyword {word} found in subject. Be careful!")
     
     return risk_points
