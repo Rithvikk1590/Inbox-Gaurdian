@@ -1,0 +1,200 @@
+:root {
+  --bg: #0d1410;
+  /* deep dark green background */
+  --panel: #111b14;
+  /* slightly lighter greenish panel */
+  --text: #e8f5e9;
+  /* soft off-white with green tint */
+  --subtext: #b5c7b8;
+  /* muted light green-gray */
+  --accent: #4caf50;
+  /* main green */
+  --accent-2: #81c784;
+  /* lighter green */
+  --border: #264d34;
+  /* card borders */
+  --hover: #1a2b20;
+  /* hover background */
+  --radius: 16px;
+}
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Topbar */
+.topbar {
+  position: sticky;
+  top: 0;
+  background: rgba(15, 19, 32, .8);
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+}
+
+.logo-mark {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-radius: 8px;
+  font-weight: bold;
+  color: #0a1022;
+}
+
+.top-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--hover);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border: none;
+  color: #0a1022;
+  font-weight: bold;
+}
+
+/* Hero */
+.hero {
+  text-align: center;
+  margin: 40px auto 0;
+  max-width: 800px;
+  padding: 0 20px;
+}
+
+.hero h1 {
+  font-size: 48px;
+  margin: 0 0 10px;
+}
+
+.hero p {
+  color: var(--subtext);
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin: 30px 0 8px;
+}
+
+.tab {
+  position: relative;
+  padding: 10px 6px;
+  color: var(--subtext);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tab[aria-selected="true"] {
+  color: var(--text);
+}
+
+.tab[aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius: 2px;
+}
+
+/* Panels */
+.panel {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+}
+
+.hidden {
+  display: none;
+}
+
+.drop-zone {
+  border: 2px dashed var(--accent);
+  border-radius: var(--radius);
+  padding: 40px 20px;
+  cursor: pointer;
+  transition: background .3s;
+}
+
+.drop-zone:hover {
+  background: var(--hover);
+}
+
+textarea {
+  width: 100%;
+  height: 200px;
+  margin-bottom: 12px;
+  background: #0a0f1f;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  resize: vertical;
+}
+
+/* Make the upload box big, centered, and readable even inside .card */
+.tab-panel .drop-zone {
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent !important;
+}
+
+.tab-panel .drop-zone p {
+  margin: 0;
+  color: var(--text) !important;
+  /* force readable text */
+  opacity: 1;
+  /* in case any global opacity got applied */
+}
+
+/* If you keep the .card wrapper, ensure contrast inside it */
+.tab-panel.card {
+  background: var(--panel) !important;
+  border: 1px solid var(--border) !important;
+}
