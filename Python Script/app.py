@@ -28,4 +28,5 @@ def sus_keywords_rule2(risk_points, subject, body):
             risk_points += 10
             print(f"Suspicious keyword {word} found in subject. Be careful!")
     
+#testing - michelle
     return risk_points
