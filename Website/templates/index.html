@@ -4,14 +4,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Inbox Guardian — Analyze Emails</title>
+  <title>Inbox Guardian</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/style.css" />
 </head>
 
 <body>
   <!-- Navbar -->
-  <header class="topbar">
+  <header class="topbar" style="position: sticky; top: 0; z-index: 1050;">
     <nav class="navbar navbar-expand-md navbar-dark bg-dark border-bottom">
       <div class="container">
         <!-- Brand -->
@@ -54,10 +54,12 @@
   <main class="panel container my-4">
     <!-- EML Upload -->
     <div class="card tab-panel" id="eml-panel">
-      <div class="drop-zone" id="drop-eml">
-        <p>Drag &amp; Drop your .eml file here or click to upload</p>
-        <input type="file" accept=".eml" hidden />
-      </div>
+      <form action="/upload_eml" method="post" enctype="multipart/form-data" id="eml-form">
+        <div class="drop-zone" id="drop-eml">
+          <p>Drag &amp; Drop your .eml file here or click to upload</p>
+          <input type="file" accept=".eml" name="eml_file" hidden />
+        </div>
+      </form>
     </div>
 
     <!-- CSV Upload -->
@@ -74,6 +76,56 @@
       <button class="btn btn-primary mt-3">Analyze</button>
     </div>
   </main>
+
+  <!-- Email Viewer Section (only shows when email is uploaded) -->
+  {% if email %}
+  <section class="container my-4" style="z-index: 1; position: relative;">
+    <div class="card bg-dark border-success">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-dark table-borderless mb-0">
+            <tbody>
+              <tr>
+                <td class="fw-bold text-success" style="width: 150px;">Subject:</td>
+                <td class="text-light">{{ email.subject }}</td>
+              </tr>
+              <tr>
+                <td class="fw-bold text-success">To:</td>
+                <td class="text-light">({{ email.to }})</td>
+              </tr>
+              <tr>
+                <td class="fw-bold text-success">From Address:</td>
+                <td class="text-light">{{ email.from }}</td>
+              </tr>
+              <tr>
+                <td class="fw-bold text-success">Date:</td>
+                <td class="text-light">{{ email.date }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="mt-4">
+          <div class="border border-success rounded p-3" style="max-height: 400px; overflow-y: auto; background-color: #1a1a1a;">
+            <pre class="text-light mb-0" style="font-size: 0.9rem; white-space: pre-wrap;">{{ email.body }}</pre>
+          </div>
+        </div>
+        
+        <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-success">
+          <!-- <div class="d-flex gap-2 align-items-center">
+            <a href="#" class="text-success text-decoration-none">Unsubscribe</a>
+            <span class="text-muted">|</span>
+            <a href="#" class="text-success text-decoration-none">Update your profile</a>
+            <span class="text-muted">| 113 Cherry St #92768, Seattle, WA 98104-2205</span>
+          </div> -->
+          <div class="text-muted small">
+            Built with <strong>Kit</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  {% endif %}
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
   <script defer src="/static/js/script.js"></script>
