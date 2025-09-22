@@ -1,24 +1,29 @@
-import re
+#PRG P9-6 Email Phishing Detection System - Inbox Guardian
 
+import re
+import csv      #for reading CSV files
+import email    #for parsing EML files
 
 #insert data cleaning process here
 
-
-
 risk_points = 0
 
-#rule 1 = whitelist check
-def safelist_rule1(risk_points, sender_domain):
+#Rule 1 = whitelist check - safelist of trusted domains for school email environment
 
-    safelist = ["edu.sg", "gov.sg"]  #assume we are only accepting emails from these domains
-    if sender_domain not in safelist:
+def safelist_rule1(risk_points, sender_domain):
+    safelist_domains = ["edu.sg", "gov.sg", "sit.singaporetech.edu.sg"] #list of trusted domains
+
+    if sender_domain not in safelist_domains:
         risk_points += 20
-        print("Sender domain is not in the predefined safelist. Be careful!")
+        print(f"Sender domain, '{sender_domain}', is not in the predefined safelist. Risk +20.") #+20 risk into risk_points when domain is outside safelist
+    else:
+        print(f"Sender domain, '{sender_domain}', is in the predefined safelist. No risk.")
+
     return risk_points
 
-#rule 2 = suspicious keywords in subject and body
+#Rule 2 = suspicious keywords in subject and body
 def sus_keywords_rule2(risk_points, subject, body):
-    sus_keywords = ["free", "cogratulations", "winner", "urgent", "prize", "claim","verify" "offer" , "limited", "click", "risk-free", "verify"]
+    sus_keywords = ["free", "congratulations", "winner", "urgent", "prize", "claim","verify" "offer", "limited", "click", "risk-free", "now"]
     for word in sus_keywords:
         if word in subject.lower():
             risk_points += 20
@@ -27,6 +32,10 @@ def sus_keywords_rule2(risk_points, subject, body):
         if word in body.lower():
             risk_points += 10
             print(f"Suspicious keyword {word} found in subject. Be careful!")
+
+#Rule 3 = Check for URLs in the email body
+def url_check_rule3(risk_points, body):
+    urls = re.findall(r'(https?://\S+)', body)
+
     
-#testing - michelle
     return risk_points
