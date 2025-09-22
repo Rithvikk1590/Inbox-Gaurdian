@@ -41,7 +41,7 @@ document.querySelectorAll(".drop-zone").forEach(zone => {
   
   input.addEventListener("change", () => {
     if (input.files.length > 0) {
-      alert(`File selected: ${input.files[0].name}`);
+      // alert(`File selected: ${input.files[0].name}`);
       // Auto-submit for .eml files
       if (form && input.files[0].name.endsWith('.eml')) {
         form.submit();

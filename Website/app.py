@@ -1,14 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for
-import email
-from email.header import decode_header
-import os
-from datetime import datetime
+from flask import Flask, render_template, request, redirect, url_for, session
+import uuid
 
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploads'
+# NEW imports from the package
+from email_analyser.parser import parse_eml_to_dict
+from email_analyser.aggregator import analyse_email_content
 
-# Create uploads directory if it doesn't exist
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+app = Flask(__name__, static_folder='static')
+app.secret_key = 'your-secret-key-here'  # replace in production
 
 @app.route("/")
 def home():
@@ -18,69 +16,36 @@ def home():
 def guide():
     return render_template("guide.html")
 
-# **NEW ROUTES ADDED**
 @app.route("/upload_eml", methods=["POST"])
 def upload_eml():
     try:
-        if 'eml_file' not in request.files:
+        f = request.files.get('eml_file')
+        if not f or not f.filename.endswith('.eml'):
             return render_template("index.html")
-        
-        file = request.files['eml_file']
-        if file.filename == '' or not file.filename.endswith('.eml'):
-            return render_template("index.html")
-        
-        # Parse the email
-        email_content = file.read()
-        msg = email.message_from_bytes(email_content)
-        
-        # Extract email data with fallbacks
-        email_data = {
-            'subject': decode_email_header(msg.get('Subject', 'No Subject')),
-            'from': decode_email_header(msg.get('From', 'Unknown Sender')),
-            'to': decode_email_header(msg.get('To', 'Unknown Recipient')),
-            'date': msg.get('Date', 'Unknown Date'),
-            'body': get_email_body(msg)
-        }
-        
-        # Render the home page with email data
-        return render_template("index.html", email=email_data)
-    
+
+        email_id = str(uuid.uuid4())
+        email_bytes = f.read()
+        email_data = parse_eml_to_dict(email_bytes)
+        email_data['filename'] = f.filename
+
+        session[email_id] = email_data
+        return render_template("index.html", email=email_data, email_id=email_id)
     except Exception as e:
-        # If parsing fails, render home without email data
-        print(f"Error parsing email: {e}")
+        print("Error parsing email:", e)
         return render_template("index.html")
 
-def decode_email_header(header):
+@app.route("/analysis/<email_id>")
+def analysis(email_id):
     try:
-        if header:
-            decoded_parts = decode_header(header)
-            decoded_header = ""
-            for part, encoding in decoded_parts:
-                if isinstance(part, bytes):
-                    decoded_header += part.decode(encoding or 'utf-8')
-                else:
-                    decoded_header += part
-            return decoded_header
-        return ""
-    except:
-        return str(header) if header else ""
+        email_data = session.get(email_id)
+        if not email_data:
+            return redirect(url_for("home"))
 
-def get_email_body(msg):
-    try:
-        body = ""
-        if msg.is_multipart():
-            for part in msg.walk():
-                content_type = part.get_content_type()
-                if content_type == "text/plain":
-                    charset = part.get_content_charset() or 'utf-8'
-                    body = part.get_payload(decode=True).decode(charset, errors='ignore')
-                    break
-        else:
-            charset = msg.get_content_charset() or 'utf-8'
-            body = msg.get_payload(decode=True).decode(charset, errors='ignore')
-        return body if body else "No text content found"
+        analysis = analyse_email_content(email_data)
+        return render_template("analysis.html", email=email_data, analysis=analysis, email_id=email_id)
     except Exception as e:
-        return f"Error reading email body: {str(e)}"
+        print("Error in analysis:", e)
+        return redirect(url_for("home"))
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5050, host="0.0.0.0")  # remove debug=True in production
+    app.run(debug=True, port=5050, host="0.0.0.0")
