@@ -1,0 +1,16 @@
+From: "Amazon Support" <support@amaz0n.example.invalid>
+To: customer@yourdomain.invalid
+Subject: Order problem — Action required
+Date: Sat, 20 Sep 2025 13:15:00 +0800
+Message-ID: <sim-04@example.invalid>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+X-Simulated-Phish: yes
+Authentication-Results: example.invalid; spf=fail (simulated)
+
+SIMULATED — FOR DEFENSIVE TESTING ONLY.
+
+Dear customer, there was an issue with your recent order.
+Confirm details: [MALICIOUS_LINK_REMOVED]
+
+Note: display name "Amazon Support" but sender domain is amaz0n.example.invalid (zero instead of 'o').

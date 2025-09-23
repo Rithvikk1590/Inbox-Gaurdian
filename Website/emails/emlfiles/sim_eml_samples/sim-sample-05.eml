@@ -1,0 +1,16 @@
+From: "CEO — Robert Chang" <robert.chang@trusted.example.invalid>
+To: finance@yourdomain.invalid
+Subject: Confidential: Wire transfer request — immediate action required by EOD today
+Date: Sat, 20 Sep 2025 13:20:00 +0800
+Message-ID: <sim-05@example.invalid>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+X-Simulated-Phish: yes
+Authentication-Results: example.invalid; spf=none (simulated)
+
+SIMULATED — FOR DEFENSIVE TESTING ONLY.
+
+Team — Please transfer funds to the attached beneficiary details.
+Attachment removed: [BANK_DETAILS_REMOVED.txt]
+
+(CEO impersonation / urgent tone.)

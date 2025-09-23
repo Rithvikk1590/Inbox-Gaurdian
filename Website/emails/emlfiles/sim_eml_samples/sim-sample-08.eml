@@ -1,0 +1,18 @@
+From: <> 
+To: postmaster@yourdomain.invalid
+Subject: Delivery Status Notification (Failure)
+Date: Sat, 20 Sep 2025 13:35:00 +0800
+Message-ID: <sim-08@example.invalid>
+MIME-Version: 1.0
+Content-Type: multipart/report; boundary="B8"; report-type=delivery-status
+X-Simulated-Phish: yes
+Authentication-Results: example.invalid; spf=pass (simulated)
+
+--B8
+Content-Type: text/plain; charset=utf-8
+
+SIMULATED — FOR DEFENSIVE TESTING ONLY.
+
+Your message could not be delivered. See details below and click to resolve: [MALICIOUS_LINK_REMOVED]
+
+--B8--

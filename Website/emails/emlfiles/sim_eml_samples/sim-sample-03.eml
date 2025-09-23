@@ -1,0 +1,15 @@
+From: "Operations" <ops@company.example.invalid>
+To: exec@yourdomain.invalid
+Subject: Re: Q4 forecast
+Date: Sat, 20 Sep 2025 13:10:00 +0800
+Message-ID: <sim-03@example.invalid>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Reply-To: payroll@malicious.example.invalid
+X-Simulated-Phish: yes
+Authentication-Results: example.invalid; spf=neutral (simulated)
+
+SIMULATED — FOR DEFENSIVE TESTING ONLY.
+
+Hi — please reply with the final numbers.
+(Reply-To intentionally different for testing.)

@@ -1,0 +1,15 @@
+From: "供应链" <supply@partners.example.invalid>
+To: buyer@yourdomain.invalid
+Subject: 重要：付款指示 (Important: payment instructions)
+Date: Sat, 20 Sep 2025 14:10:00 +0800
+Message-ID: <sim-15@example.invalid>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+X-Simulated-Phish: yes
+
+SIMULATED — FOR DEFENSIVE TESTING ONLY.
+
+尊敬的客户，我们的银行信息已更改。请查看附件并更新付款。
+Attachment removed: [BANK_UPDATE_REMOVED.pdf]
+
+(Multilingual content to test localized detection.)

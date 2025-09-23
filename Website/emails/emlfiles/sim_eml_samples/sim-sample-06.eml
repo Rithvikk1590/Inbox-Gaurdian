@@ -1,0 +1,20 @@
+From: "HR" <hr@company.example.invalid>
+To: employee@yourdomain.invalid
+Subject: Update your details (action required)
+Date: Sat, 20 Sep 2025 13:25:00 +0800
+Message-ID: <sim-06@example.invalid>
+MIME-Version: 1.0
+Content-Type: multipart/related; boundary="B6"
+X-Simulated-Phish: yes
+Authentication-Results: example.invalid; dkim=neutral (simulated)
+
+--B6
+Content-Type: text/html; charset=utf-8
+
+<html><body>
+<p><strong>SIMULATED — FOR DEFENSIVE TESTING ONLY.</strong></p>
+<p>Please complete this form: [EMBEDDED_FORM_REMOVED]</p>
+<!-- Original had an embedded form; removed and replaced with placeholder -->
+</body></html>
+
+--B6--

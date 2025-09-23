@@ -1,0 +1,18 @@
+From: "Vendor" <vendor@partner.example.invalid>
+To: procurement@yourdomain.invalid
+Subject: PO and invoice attached
+Date: Sat, 20 Sep 2025 14:00:00 +0800
+Message-ID: <sim-13@example.invalid>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="B13"
+X-Simulated-Phish: yes
+
+--B13
+Content-Type: text/plain; charset=utf-8
+
+SIMULATED — FOR DEFENSIVE TESTING ONLY.
+
+Attached: PO_789.pdf.exe (attachment removed for safety)
+Attachment removed: [PO_789.pdf.exe_REMOVED]
+
+--B13--

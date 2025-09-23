@@ -24,6 +24,16 @@ def _extract_text_body(msg) -> str:
     payload = msg.get_payload(decode=True)
     return payload.decode(charset, errors="ignore") if payload else ""
 
+def _extract_attachments(msg):
+    """Return a list of attachment filenames (decoded)."""
+    attachments = []
+    for part in msg.walk():
+        if part.get_content_disposition() == "attachment":
+            name = part.get_filename()
+            if name:
+                attachments.append(_decode_header_value(name))
+    return attachments
+
 def parse_eml_to_dict(raw_bytes: bytes) -> dict:
     msg = message_from_bytes(raw_bytes)
     return {
@@ -31,4 +41,5 @@ def parse_eml_to_dict(raw_bytes: bytes) -> dict:
         "receiver": _decode_header_value(msg.get("To")),
         "subject":  _decode_header_value(msg.get("Subject")),
         "body":     _extract_text_body(msg) or "No text content found",
+        "attachments": _extract_attachments(msg),
     }
