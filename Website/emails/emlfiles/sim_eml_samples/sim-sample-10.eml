@@ -1,0 +1,14 @@
+From: "Security" <security@alerts.example.invalid>
+To: user4@yourdomain.invalid
+Subject: Account Access Notice
+Date: Sat, 20 Sep 2025 13:45:00 +0800
+Message-ID: <sim-10@example.invalid>
+MIME-Version: 1.0
+Content-Type: text/html; charset=utf-8
+X-Simulated-Phish: yes
+
+<html><body>
+<p><strong>SIMULATED — FOR DEFENSIVE TESTING ONLY.</strong></p>
+<p>Click to secure your account: <a href="http://example.invalid/%76%65%72%69%66%79%2F%75%73%65%72">verify account</a></p>
+<p>Visible link text: <code>https://secure.example.invalid</code> (display text differs from href)</p>
+</body></html>

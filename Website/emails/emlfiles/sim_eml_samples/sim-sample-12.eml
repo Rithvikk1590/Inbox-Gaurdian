@@ -1,0 +1,15 @@
+From: "Dropbox Support" <notify@dropbox.example.invalid>
+To: user5@yourdomain.invalid
+Subject: New app requested access
+Date: Sat, 20 Sep 2025 13:55:00 +0800
+Message-ID: <sim-12@example.invalid>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+X-Simulated-Phish: yes
+
+SIMULATED — FOR DEFENSIVE TESTING ONLY.
+
+An app is requesting access to your account. Review at:
+[MALICIOUS_LINK_REMOVED]
+
+(Do NOT include real OAuth flows or credentials in test files.)

@@ -3,10 +3,13 @@ from .keyword_detector import detect_keywords
 from .position_scorer import score_positions
 from .edit_distance import check_edit_distance
 from .url_analyzer import analyze_urls
+from .attachment_rules import check_attachment_extensions
 
 def _merge(into: dict, part: dict):
     into.setdefault("body_highlights", [])
+    into.setdefault("attachment_warnings", [])
     into["body_highlights"].extend(part.get("body_highlights", []))
+    into["attachment_warnings"].extend(part.get("attachment_warnings", []))
     into["total_risk_points"] = into.get("total_risk_points", 0) + part.get("risk_points", 0)
 
 def analyse_email_content(email_data: dict) -> dict:
@@ -17,6 +20,7 @@ def analyse_email_content(email_data: dict) -> dict:
         score_positions,
         check_edit_distance,
         analyze_urls,
+        check_attachment_extensions,
     ]
     for fn in modules:
         try:

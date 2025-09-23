@@ -1,0 +1,28 @@
+From: "Rewards" <rewards@loyalty.example.invalid>
+To: user2@yourdomain.invalid
+Subject: You won! Click to claim
+Date: Sat, 20 Sep 2025 13:30:00 +0800
+Message-ID: <sim-07@example.invalid>
+MIME-Version: 1.0
+Content-Type: multipart/related; boundary="B7"
+X-Simulated-Phish: yes
+Authentication-Results: example.invalid; spf=fail (simulated)
+
+--B7
+Content-Type: text/html; charset=utf-8
+
+<html><body>
+<p><strong>SIMULATED — FOR DEFENSIVE TESTING ONLY.</strong></p>
+<p><img src="cid:prize123" alt="[INLINE_IMAGE_REMOVED]"></p>
+<p>Click here to claim: [MALICIOUS_LINK_REMOVED]</p>
+</body></html>
+
+--B7
+Content-Type: image/png; name="prize.png"
+Content-ID: <prize123>
+Content-Disposition: inline; filename="prize.png"
+Content-Transfer-Encoding: base64
+
+[INLINE_IMAGE_REMOVED_FOR_SAFETY]
+
+--B7--

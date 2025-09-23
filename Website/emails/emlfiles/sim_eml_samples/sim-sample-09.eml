@@ -1,0 +1,13 @@
+From: "IT Security" <it@xn--exampl-9ta.invalid>
+To: user3@yourdomain.invalid
+Subject: Security alert — confirm device
+Date: Sat, 20 Sep 2025 13:40:00 +0800
+Message-ID: <sim-09@example.invalid>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+X-Simulated-Phish: yes
+
+SIMULATED — FOR DEFENSIVE TESTING ONLY.
+
+We detected a login from a new device. Confirm: http://login.xn--exampl-9ta.invalid
+(Note: punycode / IDN domain used to simulate homograph.)

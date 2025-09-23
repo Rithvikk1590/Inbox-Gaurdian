@@ -1,0 +1,16 @@
+From: "Support" <support@helpdesk.example.invalid>
+To: user6@yourdomain.invalid
+Subject: Password reset request
+Date: Sat, 20 Sep 2025 14:05:00 +0800
+Message-ID: <sim-14@example.invalid>
+MIME-Version: 1.0
+Return-Path: bounce@attacker.example.invalid
+Content-Type: text/plain; charset=utf-8
+X-Simulated-Phish: yes
+Authentication-Results: example.invalid; spf=fail (simulated)
+
+SIMULATED — FOR DEFENSIVE TESTING ONLY.
+
+We received a password reset request. If this wasn't you, click: [MALICIOUS_LINK_REMOVED]
+
+(Header Return-Path intentionally differs from From.)

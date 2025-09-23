@@ -1,0 +1,26 @@
+From: "Help Desk" <helpdesk@example.invalid>
+To: user1@yourdomain.invalid
+Subject: URGENT: Verify your mailbox now
+Date: Sat, 20 Sep 2025 13:00:00 +0800
+Message-ID: <sim-01@example.invalid>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="B1"
+X-Simulated-Phish: yes
+Authentication-Results: example.invalid; spf=fail (simulated); dkim=none (simulated)
+
+--B1
+Content-Type: text/plain; charset=utf-8
+
+SIMULATED — FOR DEFENSIVE TESTING ONLY.
+
+We noticed suspicious activity. Verify here: [MALICIOUS_LINK_REMOVED]
+
+--B1
+Content-Type: text/html; charset=utf-8
+
+<html><body>
+<p><strong>SIMULATED — FOR DEFENSIVE TESTING ONLY.</strong></p>
+<p>Your mailbox will be suspended unless you <a href="http://verify.example.invalid">verify now</a>.</p>
+</body></html>
+
+--B1--

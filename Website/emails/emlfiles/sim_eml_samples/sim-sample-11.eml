@@ -1,0 +1,24 @@
+From: "Billing" <billing@invoices.example.invalid>
+To: accounts@yourdomain.invalid
+Subject: Statement ready
+Date: Sat, 20 Sep 2025 13:50:00 +0800
+Message-ID: <sim-11@example.invalid>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="B11"
+X-Simulated-Phish: yes
+
+--B11
+Content-Type: text/plain; charset=utf-8
+
+SIMULATED — FOR DEFENSIVE TESTING ONLY.
+Statement available.
+
+--B11
+Content-Type: text/html; charset=utf-8
+
+<html><body>
+<p><strong>SIMULATED — FOR DEFENSIVE TESTING ONLY.</strong></p>
+<p>Your statement is ready. <a href="http://view.example.invalid/statement">View statement</a>.</p>
+</body></html>
+
+--B11--
