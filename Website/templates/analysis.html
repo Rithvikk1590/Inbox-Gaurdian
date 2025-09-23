@@ -100,7 +100,13 @@
   <section class="container my-4">
     <div class="card bg-dark border-warning">
       <div class="card-header bg-warning text-dark">
-        <h5 class="mb-0">Attachment Warnings</h5>
+        {% if analysis.attachment_warnings %}
+          <h5 class="mb-0">Attachment Warnings</h5>
+          <p class="text-danger fw-bold">⚠️ Email includes a risky file type</p>
+          {% for w in analysis.attachment_warnings %}
+            <p>{{ w.message }}</p>
+          {% endfor %}
+        {% endif %}
       </div>
       <div class="card-body">
         <ul class="mb-0">
