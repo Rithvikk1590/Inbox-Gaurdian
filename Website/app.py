@@ -47,5 +47,22 @@ def analysis(email_id):
         print("Error in analysis:", e)
         return redirect(url_for("home"))
 
+@app.route("/manual_analysis", methods=["POST"])
+def manual_analysis():
+    sender = request.form.get("manual_sender", "")
+    subject = request.form.get("manual_subject", "")
+    body = request.form.get("manual_body", "")
+
+    email_data = {
+        "sender": sender,
+        "subject": subject,
+        "body": body,
+        "attachments": []
+    }
+
+    analysis = analyse_email_content(email_data)
+
+    return render_template("analysis.html", email=email_data, analysis=analysis, email_id="manual")
+
 if __name__ == "__main__":
     app.run(debug=True, port=5050, host="0.0.0.0")

@@ -47,6 +47,7 @@
   <nav class="tabs d-flex justify-content-center gap-3">
     <div class="tab" data-tab="eml" aria-selected="true">Upload .eml</div>
     <div class="tab" data-tab="manual">Manual Upload</div>
+    <div class="tab" data-tab="csv">Upload CSV</div> 
   </nav>
 
   <!-- Panels -->
@@ -60,11 +61,40 @@
         </div>
       </form>
     </div>
-
+    <!-- CSV Upload Panel -->
+    <div class="card tab-panel hidden" id="csv-panel">
+      <form action="/csv_analysis" method="post" enctype="multipart/form-data" id="csv-form">
+        <div class="drop-zone" id="drop-csv">
+          <p>Drag &amp; Drop your .csv file here or click to upload</p>
+          <input type="file" accept=".csv" name="file" hidden />
+        </div>
+        <div class="text-center mt-3">
+          <button type="submit" class="btn btn-success">Analyze CSV</button>
+        </div>
+      </form>
+    </div>
     <!-- Manual -->
     <div class="card tab-panel hidden" id="manual-panel">
-      <textarea class="form-control" placeholder="Paste email text here..."></textarea>
-      <button class="btn btn-primary mt-3">Analyze</button>
+      <form action="/manual_analysis" method="post">
+        <div class="mb-3">
+          <label for="manual-sender" class="form-label">Sender</label>
+          <input type="text" class="form-control" id="manual-sender" name="manual_sender" placeholder="sender's email" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="manual-subject" class="form-label">Subject</label>
+          <input type="text" class="form-control" id="manual-subject" name="manual_subject" placeholder="Subject title" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="manual-body" class="form-label">Body</label>
+          <textarea class="form-control" id="manual-body" name="manual_body" placeholder="Paste email text here..." rows="8" required></textarea>
+        </div>
+
+        <div class="text-center">
+          <button type="submit" class="btn btn-primary mt-3">Analyze</button>
+        </div>
+      </form>
     </div>
   </main>
 
