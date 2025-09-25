@@ -1,0 +1,5 @@
+ Name ,Email, Age, Notes 
+ Alice ,alice@example.com,25, Likes cats 
+Bob,,,  
+,bob@example.com,30,
+ Charlie ,charlie@example.com,,Enjoys   hiking

@@ -1,0 +1,13 @@
+ Name ,email, Department,Manager,Notes
+ Jeff Skilling ,jeff.skilling@enron.com,  Executive ,ben.glisan@enron.com  ,
+ Ken Lay ,ken.lay@enron.com,  Executive ,mark.taylor@enron.com,High performer
+ Andrew Fastow ,andrew.fastow@enron.com,  Finance ,louise.kitchen@enron.com  ,  
+ Lea Fastow ,LEA.FASTOW@ENRON.COM,  Finance ,mark.taylor@enron.com,  
+ Louise Kitchen ,LOUISE.KITCHEN@ENRON.COM,  Trading ,ben.glisan@enron.com,
+ John Arnold ,john.arnold@enron.com,  Trading ,louise.kitchen@enron.com  ,High performer
+ Sherron Watkins ,SHERRON.WATKINS@ENRON.COM,  Accounting ,andrew.fastow@enron.com  ,On leave next week
+ Richard Causey ,RICHARD.CAUSEY@ENRON.COM,  Accounting ,andrew.fastow@enron.com,High performer
+ David Delainey ,david.delainey@enron.com,  Wholesale ,cindy.olson@enron.com  ,  
+ Cindy Olson ,cindy.olson@enron.com,  HR ,louise.kitchen@enron.com,High performer
+ Mark Taylor ,mark.taylor@enron.com,  Legal ,john.arnold@enron.com,
+ Ben Glisan ,ben.glisan@enron.com,  Treasury ,andrew.fastow@enron.com  ,On leave next week

@@ -1,0 +1,4 @@
+ Message-ID ,Date , From,To,Cc,Bcc, Subject , Body,Folder,Attachments,is_spam,thread_id
+<1.1234@enron.com>,2001-06-01 09:15:00, jeff.skilling@enron.com ,ken.lay@enron.com,  ,,URGENT: Verify your account   ,Please click here to reset your password   ,SENT ,reset.js,1,t150
+<2.5678@enron.com>,2001-06-01 10:45:00,andrew.fastow@enron.com.,john.arnold@enron.com,,sherron.watkins@enron.com,Draft term sheet,Please review attached draft document.,inbox,draft.docx,0,t151
+<3.9012@enron.com>,2001-06-01 11:30:00,  ,louise.kitchen@enron.com,,,Meeting follow-up,Let's discuss the updated trading limits.,INBOX,,0,t152

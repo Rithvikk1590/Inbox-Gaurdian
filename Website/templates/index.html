@@ -63,10 +63,10 @@
     </div>
     <!-- CSV Upload Panel -->
     <div class="card tab-panel hidden" id="csv-panel">
-      <form action="/csv_analysis" method="post" enctype="multipart/form-data" id="csv-form">
+      <form action="/upload_csv" method="post" enctype="multipart/form-data" id="csv-form">
         <div class="drop-zone" id="drop-csv">
           <p>Drag &amp; Drop your .csv file here or click to upload</p>
-          <input type="file" accept=".csv" name="file" hidden />
+          <input type="file" accept=".csv" name="csv_file" hidden />
         </div>
         <div class="text-center mt-3">
           <button type="submit" class="btn btn-success">Analyze CSV</button>
@@ -146,6 +146,36 @@
     </div>
   </section>
   {% endif %}
+
+<!-- CSV Viewer Section (only shows when CSV is uploaded) -->
+{% if csv_table %}
+<div class="mt-4">
+  <h3>Cleaned CSV Data</h3>
+  <div class="card shadow-sm p-4">
+    {{ csv_table|safe }}
+  </div>
+
+  <!-- Button: only shows after CSV is cleaned -->
+  <div class="text-center mt-3">
+    <a href="/#csv-panel" class="btn btn-primary">Clean Another CSV</a>
+  </div>
+</div>
+{% endif %}
+
+{% if csv_analysis %}
+<div class="mt-4">
+  <h3>CSV Analysis Results</h3>
+  <div class="card shadow-sm p-4">
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item">Suspicious subjects: {{ csv_analysis.suspicious_subject_count }}</li>
+      <li class="list-group-item">Suspicious attachments: {{ csv_analysis.suspicious_attachments }}</li>
+      <li class="list-group-item">Malformed sender emails: {{ csv_analysis.bad_sender_emails }}</li>
+      <li class="list-group-item">Spam-marked rows: {{ csv_analysis.spam_marked_rows }}</li>
+    </ul>
+  </div>
+</div>
+{% endif %}
+
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
   <script defer src="/static/js/script.js"></script>

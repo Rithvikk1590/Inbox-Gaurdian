@@ -1,0 +1,25 @@
+From: attacker@example.com
+To: victim@example.com
+Subject: Urgent Security Update
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="BOUNDARY"
+
+--BOUNDARY
+Content-Type: text/plain; charset="UTF-8"
+
+Dear user,
+
+Please download and run the attached security update immediately.
+
+Regards,
+IT Support
+
+--BOUNDARY
+Content-Type: application/octet-stream; name="update.exe"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="update.exe"
+
+TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+# (truncated binary — no need for real executable data in a test)
+
+--BOUNDARY--

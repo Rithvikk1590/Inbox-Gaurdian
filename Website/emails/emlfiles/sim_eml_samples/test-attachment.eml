@@ -1,0 +1,22 @@
+From: attacker@example.com
+To: victim@example.com
+Subject: Please review the attached document urgently
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="===============8859283987614473659=="
+
+--===============8859283987614473659==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+This is a phishing test email.
+Please see the attached file.
+
+--===============8859283987614473659==
+Content-Type: application/octet-stream
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="invoice.docm"
+MIME-Version: 1.0
+
+Q29uZmlkZW50aWFsOiBUaGlzIGlzIGEgZmFrZSBpbnZvaWNlLgpEbyBub3QgdHJ1c3Qu
+
+--===============8859283987614473659==--
