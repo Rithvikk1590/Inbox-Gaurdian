@@ -12,23 +12,23 @@
 <body>
   {% include 'includes/navbar.html' %}
   <!-- Analysis Header -->
-<section class="hero text-center py-3">
-  <div class="container">
-    <h1 class="display-4 fw-bold mb-2">Email Analysis Results</h1>
-    <div class="d-flex flex-column align-items-center gap-2 mb-4"></div>
+  <section class="hero text-center py-3">
+    <div class="container">
+      <h1 class="display-4 fw-bold mb-2">Email Analysis Results</h1>
+      <div class="d-flex flex-column align-items-center gap-2 mb-4"></div>
       <div class="d-inline-block mb-2 px-4 py-2 bg-white text-dark border rounded-2 shadow-sm">
         Analyzing: <strong>{{ email.filename }}</strong>
       </div>
       <div class="d-inline-block ms-3 mb-2 px-4 py-2 rounded-2 text-white"
-          style="background-color: {% if analysis.total_risk_points > 50 %}#dc3545{% elif analysis.total_risk_points > 20 %}#ffc107; color: #000{% else %}#28a745{% endif %};">
+        style="background-color: {% if analysis.total_risk_points > 50 %}#dc3545{% elif analysis.total_risk_points > 20 %}#ffc107; color: #000{% else %}#28a745{% endif %};">
         Total Risk: <strong>{{ analysis.total_risk_points }}</strong> points
       </div>
     </div>
-  </div>
-</section>
+    </div>
+  </section>
 
-<!-- Sender -->
-<section class="container my-4">
+  <!-- Sender -->
+  <section class="container my-4">
     <div class="card-header bg-dark text-white d-flex align-items-center gap-2 p-3 border-0 rounded-top-2">
       <i class="bi bi-chat-left-text fs-4"></i>
       <h5 class="mb-0 text-white fw-semibold">Sender</h5>
@@ -38,23 +38,24 @@
         {{ email.sender }}
       </pre>
     </div>
-</section>
+  </section>
 
-<!-- Subject -->
-<section class="container my-4">
+  <!-- Subject -->
+  <section class="container my-4">
     <div class="card-header bg-dark text-white d-flex align-items-center gap-2 p-3 border-0 rounded-top-2">
       <i class="bi bi-chat-left-text fs-4"></i>
       <h5 class="mb-0 text-white fw-semibold">Subject</h5>
     </div>
     <div class="card-body p-0 m-0 border-0">
-      <pre id="email-from" class="bg-body-tertiary text-wrap text-dark p-4 m-0 rounded-0 border-0">
+      <!-- FIX: give Subject its own ID so it can be targeted for highlights -->
+      <pre id="email-subject" class="bg-body-tertiary text-wrap text-dark p-4 m-0 rounded-0 border-0">
         {{ email.subject }}
       </pre>
     </div>
-</section>
+  </section>
 
-<!-- Body -->
-<section class="container my-4">
+  <!-- Body -->
+  <section class="container my-4">
     <div class="card-header bg-dark text-white d-flex align-items-center gap-2 p-3 border-0 rounded-top-2">
       <i class="bi bi-chat-left-text fs-4"></i>
       <h5 class="mb-0 text-white fw-semibold">Email</h5>
@@ -64,16 +65,16 @@
         {{ email.body }}
       </pre>
     </div>
-</section>
+  </section>
 
-<!-- Attachments -->
-<section class="container my-4">
+  <!-- Attachments -->
+  <section class="container my-4">
     <div class="card-header bg-dark text-white d-flex align-items-center gap-2 p-3 border-0 rounded-top-2">
       <i class="bi bi-chat-left-text fs-4"></i>
       <h5 class="mb-0 text-white fw-semibold">Attachment</h5>
     </div>
     <div class="card-body p-0 m-0 border-0">
-      <pre id="email-from" class="bg-body-tertiary text-wrap text-dark p-4 m-0 rounded-0 border-0">
+      <pre id="email-attachments" class="bg-body-tertiary text-wrap text-dark p-4 m-0 rounded-0 border-0">
         {% if email.attachments %}
           {% for a in email.attachments %}
             {{ a }}
@@ -83,114 +84,150 @@
         {% endif %}
       </pre>
     </div>
-</section>
+  </section>
 
-<!-- Attachment Warnings -->
-{% if analysis.attachment_warnings %}
-<section class="container my-4">
-  <div class="alert alert-warning border border-warning d-flex align-items-start shadow-sm">
-    <i class="bi bi-exclamation-triangle-fill fs-3 me-3 mt-1"></i>
-    <div>
-      <h6 class="mb-1 text-danger">⚠️ Suspicious Attachments Detected</h6>
-      <ul class="mb-0">
-        {% for w in analysis.attachment_warnings %}
+  <!-- Attachment Warnings -->
+  {% if analysis.attachment_warnings %}
+  <section class="container my-4">
+    <div class="alert alert-warning border border-warning d-flex align-items-start shadow-sm">
+      <i class="bi bi-exclamation-triangle-fill fs-3 me-3 mt-1"></i>
+      <div>
+        <h6 class="mb-1 text-danger">⚠️ Suspicious Attachments Detected</h6>
+        <ul class="mb-0">
+          {% for w in analysis.attachment_warnings %}
           <li>{{ w.message }}</li>
-        {% endfor %}
-      </ul>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
-  </div>
-</section>
-{% endif %}
+  </section>
+  {% endif %}
 
-<!-- Other Warnings / Insights -->
-{% if analysis.other_warnings %}
-<section class="container my-4">
-  <div class="card border-warning bg-warning bg-opacity-10 shadow-sm">
-    <div class="card-header bg-warning text-dark">
-      <h5 class="mb-0"><i class="bi bi-shield-exclamation me-2"></i>Potential Risks</h5>
-    </div>
-    <div class="card-body">
-      <ul class="mb-0">
-        {% for warning in analysis.other_warnings %}
+  <!-- Other Warnings / Insights -->
+  {% if analysis.other_warnings %}
+  <section class="container my-4">
+    <div class="card border-warning bg-warning bg-opacity-10 shadow-sm">
+      <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0"><i class="bi bi-shield-exclamation me-2"></i>Potential Risks</h5>
+      </div>
+      <div class="card-body">
+        <ul class="mb-0">
+          {% for warning in analysis.other_warnings %}
           <li>{{ warning }}</li>
-        {% endfor %}
-      </ul>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
+  </section>
+  {% endif %}
+
+  <!-- Action Button -->
+  <section class="container my-5 text-center">
+    <a href="/" class="btn btn-lg btn-outline-primary px-3 rounded-3">
+      <i class="bi bi-upload me-2"></i>Analyze Another Email
+    </a>
+  </section>
+
+  <!-- Custom Tooltip -->
+  <div id="customTooltip" class="position-fixed bg-danger text-white p-2 rounded shadow-sm small text-center"
+    style="max-width: 300px; display: none; z-index: 1070; pointer-events: none;" aria-hidden="true">
+    <div id="tooltipText" style="white-space: pre-wrap;"></div>
   </div>
-</section>
-{% endif %}
 
-<!-- Action Button -->
-<section class="container my-5 text-center">
-  <a href="/" class="btn btn-lg btn-outline-primary px-3 rounded-3">
-    <i class="bi bi-upload me-2"></i>Analyze Another Email
-  </a>
-</section>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const targets = [
+        document.getElementById('email-body'),
+        document.getElementById('email-subject'),
+        document.getElementById('email-to'),
+        document.getElementById('email-from')
+      ].filter(Boolean);
 
-<!-- Custom Tooltip -->
-<div id="customTooltip"
-     class="position-fixed bg-danger text-white p-2 rounded shadow-sm small text-center"
-     style="max-width: 300px; display: none; z-index: 1070; pointer-events: none;"
-     aria-hidden="true">
-  <div id="tooltipText"></div>
-</div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    // Collect all elements we want to scan
-    const targets = [
-      document.getElementById('email-body'),
-      document.getElementById('email-subject'),
-      document.getElementById('email-to'),
-      document.getElementById('email-from')
-    ].filter(Boolean);
-
-    const highlights = {{ analysis.body_highlights | tojson | safe if analysis.body_highlights else '[]' }};
+      const highlights = {{ analysis.body_highlights | tojson | safe if analysis.body_highlights else '[]'
+    }};
     if (!Array.isArray(highlights) || highlights.length === 0) return;
 
     // Escape helpers
     const escRe = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const escAttr = s => String(s)
+    const escHtml = s => String(s)
       .replace(/&/g, '&amp;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
 
+    // Merge same (section, text) so we show a single span with all messages
+    const mergedMap = new Map();
+    for (const h of highlights) {
+      if (!h || !h.text) continue;
+      const key = `${h.section || 'any'}|${String(h.text).toLowerCase()}`;
+      if (!mergedMap.has(key)) {
+        mergedMap.set(key, { text: h.text, section: h.section || 'any', messages: [] });
+      }
+      const msg = h.hover_message || h.message || h.reason || h.label || 'Flagged item';
+      mergedMap.get(key).messages.push(msg);
+    }
+    const merged = Array.from(mergedMap.values());
+
+    // Replace raw text with a span; store tooltip in data-tooltip (HTML-escaped)
     targets.forEach(el => {
-      let content = el.textContent;
-      highlights.forEach(h => {
-        if (!h || !h.text) return;
+      let content = el.textContent; // start from plain text; avoids nested spans issues
+      merged.forEach(h => {
         const regex = new RegExp(escRe(h.text), 'gi');
-        const hoverMsg = escAttr(h.hover_message || '');
+        // Use &#10; for newlines inside attribute values (safe in HTML)
+        const tooltip = escHtml(h.messages.filter(Boolean).join('&#10;• '));
         const replacement =
-          `<span style="background-color: yellow; color: black; font-weight: bold; padding: 0 2px; border-radius: 2px;" ` +
-          `onmouseover="showTooltip(event, '${hoverMsg}')" ` +
-          `onmouseout="hideTooltip()">${escAttr(h.text)}</span>`;
+          `<span class="ig-highlight" ` +
+          `style="background-color: yellow; color: black; font-weight: bold; padding: 0 2px; border-radius: 2px;" ` +
+          `data-tooltip="${tooltip}">${escHtml(h.text)}</span>`;
         content = content.replace(regex, replacement);
       });
       el.innerHTML = content;
+
+      // Event delegation for tooltips on this block
+      el.addEventListener('mouseover', e => {
+        const t = e.target.closest('.ig-highlight');
+        if (!t) return;
+        showTooltip(e, t.getAttribute('data-tooltip') || '');
+      });
+      el.addEventListener('mousemove', e => {
+        const t = e.target.closest('.ig-highlight');
+        if (!t) return;
+        // keep tooltip near cursor for long lines
+        positionTooltip(e);
+      });
+      el.addEventListener('mouseout', e => {
+        const t = e.target.closest('.ig-highlight');
+        if (!t) return;
+        hideTooltip();
+      });
     });
   });
 
-  function showTooltip(event, text) {
-    const tooltip = document.getElementById('customTooltip');
-    const tooltipText = document.getElementById('tooltipText');
-    tooltipText.textContent = text || '';
-    tooltip.style.display = 'block';
-    // Get the element that triggered the event
-    const target = event.target;
-    // Get position of the highlighted word
-    const rect = target.getBoundingClientRect();
-    // Position tooltip just above the word
-    tooltip.style.left = `${rect.left + window.scrollX + rect.width / 2 - tooltip.offsetWidth / 2}px`;
-    tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight - 8}px`; // 8px gap
-  }
+    function showTooltip(event, text) {
+      const tooltip = document.getElementById('customTooltip');
+      const tooltipText = document.getElementById('tooltipText');
+      // Decode the newline entity to actual newlines
+      const decoded = (text || '').replace(/&#10;/g, '\n');
+      tooltipText.textContent = decoded;
+      tooltip.style.display = 'block';
+      positionTooltip(event);
+    }
 
-  function hideTooltip() {
-    document.getElementById('customTooltip').style.display = 'none';
-  }
-</script>
+    function positionTooltip(event) {
+      const tooltip = document.getElementById('customTooltip');
+      const x = event.pageX, y = event.pageY;
+      tooltip.style.left = `${x - tooltip.offsetWidth / 2}px`;
+      tooltip.style.top = `${y - tooltip.offsetHeight - 12}px`;
+    }
+
+    function hideTooltip() {
+      const tooltip = document.getElementById('customTooltip');
+      tooltip.style.display = 'none';
+    }
+  </script>
+
 
 </body>
+
 </html>
