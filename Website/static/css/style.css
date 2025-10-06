@@ -166,3 +166,39 @@ textarea {
   background: var(--panel) !important;
   border: 1px solid var(--border) !important;
 }
+
+
+/* Smooth transitions */
+.card, .alert {
+  transition: transform 0.2s ease-in-out;
+}
+.card:hover, .alert:hover {
+  transform: translateY(-2px);
+}
+
+/* Pre-formatted email styling */
+.email-body-content,
+#email-body {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.95rem !important;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+/* Highlighted suspicious text */
+.marked-suspicious {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 0 4px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.border-thick {
+  border-width: 3px !important;
+}

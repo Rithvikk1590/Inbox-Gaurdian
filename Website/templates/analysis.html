@@ -10,108 +10,92 @@
 </head>
 
 <body>
-  <!-- Navbar -->
-  <header class="topbar" style="position: sticky; top: 0; z-index: 1050;">
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark border-bottom">
-      <div class="container">
-        <!-- Brand -->
-        <a class="navbar-brand d-flex align-items-center" href="/">
-          <span class="bg-success text-dark fw-bold rounded-3 px-2 py-1 me-2">IG</span>
-          <span class="fw-semibold">Inbox Guardian</span>
-        </a>
-
-        <!-- Hamburger -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#igNavbar"
-          aria-controls="igNavbar" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <!-- Left-aligned nav items -->
-        <div class="collapse navbar-collapse" id="igNavbar">
-          <ul class="navbar-nav ms-3">
-            <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-            <li class="nav-item"><a class="nav-link" href="/guide">Guide</a></li>
-            <li class="nav-item"><a class="nav-link active" aria-current="page" href="#">Analysis</a></li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-  </header>
-
+  {% include 'includes/navbar.html' %}
   <!-- Analysis Header -->
-  <section class="hero text-center my-4">
-    <h1>Email Analysis Results</h1>
-    <p class="text-muted">Analyzing: <strong>{{ email.filename }}</strong></p>
-    <p class="text-warning">Total Risk Points: {{ analysis.total_risk_points }}</p>
-  </section>
-
-  <!-- Email Content with Highlighting -->
-  <section class="container my-4">
-    <div class="card bg-dark border-success">
-      <div class="card-header bg-success text-dark">
-        <h5 class="mb-0">Email Content Analysis</h5>
+  <section class="hero text-center py-3">
+    <div class="container">
+      <h1 class="display-4 fw-bold mb-2">Email Analysis Results</h1>
+      <div class="d-flex flex-column align-items-center gap-2 mb-4"></div>
+      <div class="d-inline-block mb-2 px-4 py-2 bg-white text-dark border rounded-2 shadow-sm">
+        Analyzing: <strong>{{ email.filename }}</strong>
       </div>
-      <div class="card-body">
-        <div class="table-responsive mb-4">
-          <table class="table table-dark table-borderless">
-            <tbody>
-              <tr>
-                <td class="fw-bold text-success" style="width: 150px;">Subject:</td>
-                <td class="text-light" id="email-subject">{{ email.subject }}</td>
-              </tr>
-              <tr>
-                <td class="fw-bold text-success">To:</td>
-                <td class="text-light" id="email-to">{{ email.receiver }}</td>
-              </tr>
-              <tr>
-                <td class="fw-bold text-success">From:</td>
-                <td class="text-light" id="email-from">{{ email.sender }}</td>
-              </tr>
-              <tr>
-              <td class="fw-bold text-success">Attachments:</td>
-              <td class="text-light">
-                {% if email.attachments %}
-                  <ul class="mb-0">
-                    {% for a in email.attachments %}
-                      <li>{{ a }}</li>
-                    {% endfor %}
-                  </ul>
-                {% else %}
-                  <span class="text-light">None</span>
-                {% endif %}
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="mb-3">
-          <h6 class="text-success">Email Body:</h6>
-          <div class="email-body-container">
-            <pre class="text-light mb-0 email-body-content" id="email-body">{{ email.body }}</pre>
-          </div>
-        </div>
+      <div class="d-inline-block ms-3 mb-2 px-4 py-2 rounded-2 text-white"
+        style="background-color: {% if analysis.total_risk_points > 50 %}#dc3545{% elif analysis.total_risk_points > 20 %}#ffc107; color: #000{% else %}#28a745{% endif %};">
+        Total Risk: <strong>{{ analysis.total_risk_points }}</strong> points
       </div>
+    </div>
     </div>
   </section>
 
-
-    {% if analysis.attachment_warnings %}
+  <!-- Sender -->
   <section class="container my-4">
-    <div class="card bg-dark border-warning">
-      <div class="card-header bg-warning text-dark">
-        {% if analysis.attachment_warnings %}
-          <h5 class="mb-0">Attachment Warnings</h5>
-          <p class="text-danger fw-bold">⚠️ Email includes a risky file type</p>
-          {% for w in analysis.attachment_warnings %}
-            <p>{{ w.message }}</p>
+    <div class="card-header bg-dark text-white d-flex align-items-center gap-2 p-3 border-0 rounded-top-2">
+      <i class="bi bi-chat-left-text fs-4"></i>
+      <h5 class="mb-0 text-white fw-semibold">Sender</h5>
+    </div>
+    <div class="card-body p-0 m-0 border-0">
+      <pre id="email-from" class="bg-body-tertiary text-wrap text-dark p-4 m-0 rounded-0 border-0">
+        {{ email.sender }}
+      </pre>
+    </div>
+  </section>
+
+  <!-- Subject -->
+  <section class="container my-4">
+    <div class="card-header bg-dark text-white d-flex align-items-center gap-2 p-3 border-0 rounded-top-2">
+      <i class="bi bi-chat-left-text fs-4"></i>
+      <h5 class="mb-0 text-white fw-semibold">Subject</h5>
+    </div>
+    <div class="card-body p-0 m-0 border-0">
+      <!-- FIX: give Subject its own ID so it can be targeted for highlights -->
+      <pre id="email-subject" class="bg-body-tertiary text-wrap text-dark p-4 m-0 rounded-0 border-0">
+        {{ email.subject }}
+      </pre>
+    </div>
+  </section>
+
+  <!-- Body -->
+  <section class="container my-4">
+    <div class="card-header bg-dark text-white d-flex align-items-center gap-2 p-3 border-0 rounded-top-2">
+      <i class="bi bi-chat-left-text fs-4"></i>
+      <h5 class="mb-0 text-white fw-semibold">Email</h5>
+    </div>
+    <div class="card-body p-0 m-0 border-0">
+      <pre id="email-body" class="bg-body-tertiary text-wrap text-dark p-4 m-0 rounded-0 border-0">
+        {{ email.body }}
+      </pre>
+    </div>
+  </section>
+
+  <!-- Attachments -->
+  <section class="container my-4">
+    <div class="card-header bg-dark text-white d-flex align-items-center gap-2 p-3 border-0 rounded-top-2">
+      <i class="bi bi-chat-left-text fs-4"></i>
+      <h5 class="mb-0 text-white fw-semibold">Attachment</h5>
+    </div>
+    <div class="card-body p-0 m-0 border-0">
+      <pre id="email-attachments" class="bg-body-tertiary text-wrap text-dark p-4 m-0 rounded-0 border-0">
+        {% if email.attachments %}
+          {% for a in email.attachments %}
+            {{ a }}
           {% endfor %}
+        {% else %}
+          <span class="text-dark">No attachments</span>
         {% endif %}
-      </div>
-      <div class="card-body">
+      </pre>
+    </div>
+  </section>
+
+  <!-- Attachment Warnings -->
+  {% if analysis.attachment_warnings %}
+  <section class="container my-4">
+    <div class="alert alert-warning border border-warning d-flex align-items-start shadow-sm">
+      <i class="bi bi-exclamation-triangle-fill fs-3 me-3 mt-1"></i>
+      <div>
+        <h6 class="mb-1 text-danger">⚠️ Suspicious Attachments Detected</h6>
         <ul class="mb-0">
           {% for w in analysis.attachment_warnings %}
-            <li>{{ w.message }}</li>
+          <li>{{ w.message }}</li>
           {% endfor %}
         </ul>
       </div>
@@ -119,72 +103,131 @@
   </section>
   {% endif %}
 
+  <!-- Other Warnings / Insights -->
+  {% if analysis.other_warnings %}
+  <section class="container my-4">
+    <div class="card border-warning bg-warning bg-opacity-10 shadow-sm">
+      <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0"><i class="bi bi-shield-exclamation me-2"></i>Potential Risks</h5>
+      </div>
+      <div class="card-body">
+        <ul class="mb-0">
+          {% for warning in analysis.other_warnings %}
+          <li>{{ warning }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </section>
+  {% endif %}
 
   <!-- Action Button -->
-  <section class="container mb-5">
-    <div class="text-center">
-      <a href="/" class="btn btn-success btn-lg">
-        Analyze Another Email
-      </a>
-    </div>
+  <section class="container my-5 text-center">
+    <a href="/" class="btn btn-lg btn-outline-primary px-3 rounded-3">
+      <i class="bi bi-upload me-2"></i>Analyze Another Email
+    </a>
   </section>
 
   <!-- Custom Tooltip -->
-  <div class="custom-tooltip" id="customTooltip" style="display: none;">
-    <div class="tooltip-inner"></div>
+  <div id="customTooltip" class="position-fixed bg-danger text-white p-2 rounded shadow-sm small text-center"
+    style="max-width: 300px; display: none; z-index: 1070; pointer-events: none;" aria-hidden="true">
+    <div id="tooltipText" style="white-space: pre-wrap;"></div>
   </div>
 
   <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    // Collect all elements we want to scan
-    const targets = [
-      document.getElementById('email-body'),
-      document.getElementById('email-subject'),
-      document.getElementById('email-to'),
-      document.getElementById('email-from')
-    ].filter(Boolean);
+    document.addEventListener('DOMContentLoaded', function () {
+      const targets = [
+        document.getElementById('email-body'),
+        document.getElementById('email-subject'),
+        document.getElementById('email-to'),
+        document.getElementById('email-from')
+      ].filter(Boolean);
 
-    const highlights = {{ analysis.body_highlights | tojson | safe if analysis.body_highlights else '[]' }};
+      const highlights = {{ analysis.body_highlights | tojson | safe if analysis.body_highlights else '[]'
+    }};
     if (!Array.isArray(highlights) || highlights.length === 0) return;
 
     // Escape helpers
     const escRe = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const escAttr = s => String(s)
+    const escHtml = s => String(s)
       .replace(/&/g, '&amp;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
 
+    // Merge same (section, text) so we show a single span with all messages
+    const mergedMap = new Map();
+    for (const h of highlights) {
+      if (!h || !h.text) continue;
+      const key = `${h.section || 'any'}|${String(h.text).toLowerCase()}`;
+      if (!mergedMap.has(key)) {
+        mergedMap.set(key, { text: h.text, section: h.section || 'any', messages: [] });
+      }
+      const msg = h.hover_message || h.message || h.reason || h.label || 'Flagged item';
+      mergedMap.get(key).messages.push(msg);
+    }
+    const merged = Array.from(mergedMap.values());
+
+    // Replace raw text with a span; store tooltip in data-tooltip (HTML-escaped)
     targets.forEach(el => {
-      let content = el.textContent;
-      highlights.forEach(h => {
-        if (!h || !h.text) return;
+      let content = el.textContent; // start from plain text; avoids nested spans issues
+      merged.forEach(h => {
         const regex = new RegExp(escRe(h.text), 'gi');
-        const hoverMsg = escAttr(h.hover_message || '');
+        // Use &#10; for newlines inside attribute values (safe in HTML)
+        const tooltip = escHtml(h.messages.filter(Boolean).join('&#10;• '));
         const replacement =
-          `<span style="background-color: yellow; color: black; font-weight: bold; padding: 0 2px; border-radius: 2px;" ` +
-          `onmouseover="showTooltip(event, '${hoverMsg}')" ` +
-          `onmouseout="hideTooltip()">${escAttr(h.text)}</span>`;
+          `<span class="ig-highlight" ` +
+          `style="background-color: yellow; color: black; font-weight: bold; padding: 0 2px; border-radius: 2px;" ` +
+          `data-tooltip="${tooltip}">${escHtml(h.text)}</span>`;
         content = content.replace(regex, replacement);
       });
       el.innerHTML = content;
+
+      // Event delegation for tooltips on this block
+      el.addEventListener('mouseover', e => {
+        const t = e.target.closest('.ig-highlight');
+        if (!t) return;
+        showTooltip(e, t.getAttribute('data-tooltip') || '');
+      });
+      el.addEventListener('mousemove', e => {
+        const t = e.target.closest('.ig-highlight');
+        if (!t) return;
+        // keep tooltip near cursor for long lines
+        positionTooltip(e);
+      });
+      el.addEventListener('mouseout', e => {
+        const t = e.target.closest('.ig-highlight');
+        if (!t) return;
+        hideTooltip();
+      });
     });
   });
 
-  function showTooltip(event, text) {
-    const tooltip = document.getElementById('customTooltip');
-    tooltip.querySelector('.tooltip-inner').textContent = text || '';
-    tooltip.style.display = 'block';
-    tooltip.style.position = 'absolute';
-    tooltip.style.left = event.pageX + 10 + 'px';
-    tooltip.style.top = event.pageY - 30 + 'px';
-    tooltip.style.zIndex = '9999';
-  }
+    function showTooltip(event, text) {
+      const tooltip = document.getElementById('customTooltip');
+      const tooltipText = document.getElementById('tooltipText');
+      // Decode the newline entity to actual newlines
+      const decoded = (text || '').replace(/&#10;/g, '\n');
+      tooltipText.textContent = decoded;
+      tooltip.style.display = 'block';
+      positionTooltip(event);
+    }
 
-  function hideTooltip() {
-    document.getElementById('customTooltip').style.display = 'none';
-  }
+    function positionTooltip(event) {
+      const tooltip = document.getElementById('customTooltip');
+      const x = event.pageX, y = event.pageY;
+      tooltip.style.left = `${x - tooltip.offsetWidth / 2}px`;
+      tooltip.style.top = `${y - tooltip.offsetHeight - 12}px`;
+    }
+
+    function hideTooltip() {
+      const tooltip = document.getElementById('customTooltip');
+      tooltip.style.display = 'none';
+    }
   </script>
+
+
 </body>
+
 </html>

@@ -141,11 +141,11 @@ def analysis(email_id):
             return redirect(url_for("home"))
 
         analysis = analyse_email_content(email_data)
-        return render_template("analysis.html", email=email_data, analysis=analysis, email_id=email_id)
+        return render_template("analysis.html", email=email_data, analysis=analysis, email_id=email_id, show_analysis=True)
     except Exception as e:
         print("Error in analysis:", e)
         return redirect(url_for("home"))
-
+    
 @app.route("/manual_analysis", methods=["POST"])
 def manual_analysis():
     sender = request.form.get("manual_sender", "")
