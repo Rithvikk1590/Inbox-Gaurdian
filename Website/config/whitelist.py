@@ -1,0 +1,13 @@
+WHITELIST = {
+    "trusted_senders": [
+        "support@paypal.com",
+        "security@microsoft.com",
+        "no-reply@google.com"
+    ],
+    "trusted_domains": [
+        "gov.sg",
+        "ntu.edu.sg",
+        "moh.gov.sg",
+        "paypal.com"
+    ]
+}
