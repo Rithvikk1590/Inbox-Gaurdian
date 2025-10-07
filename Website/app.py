@@ -11,6 +11,7 @@ app = Flask(__name__, static_folder='static')
 app.secret_key = 'your-secret-key-here'  # replace in production
 
 def analyse_csv(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    print(dict)
     """
     Clean + annotate the CSV with rule-based flags.
     Returns (annotated DataFrame, summary dict).

@@ -1,16 +1,7 @@
-import os
-import json
+import re
 import whois
-from datetime import datetime, timedelta
-
-# Load whitelist once (fallback to empty if not present)
-CONFIG_PATH = os.path.join(os.path.dirname(__file__), "..", "config", "whitelist.json")
-
-try:
-    with open(r'config\whitelist.json', 'r') as f:
-        WHITELIST = json.load(f)
-except Exception:
-    WHITELIST = {"trusted_senders": [], "trusted_domains": []}
+from datetime import datetime
+from config.whitelist import WHITELIST  # ✅ import the dictionary directly
 
 def is_new_domain(domain):
     w = whois.whois(domain)
@@ -28,6 +19,11 @@ def is_new_domain(domain):
 
 def check_whitelist(email_data: dict) -> dict:
     sender = (email_data.get("sender") or "").lower().strip()
+
+    # to strip out only the sender email if the format is <Name> <email@domain>
+    match = re.search(r'<([^>]+)>', sender)
+    if match:
+        sender = match.group(1)
     risk = 0
     highlights = []
 
@@ -48,7 +44,9 @@ def check_whitelist(email_data: dict) -> dict:
     trusted_senders = [s.lower() for s in WHITELIST.get("trusted_senders", [])]
     trusted_domains = [d.lower() for d in WHITELIST.get("trusted_domains", [])]
 
-    if sender not in trusted_senders and domain not in trusted_domains:
+    if sender in trusted_senders or domain in trusted_domains:
+        return True
+    else:
         risk += 3
         highlights.append({
             "text": sender,
