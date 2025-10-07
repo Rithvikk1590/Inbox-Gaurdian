@@ -8,15 +8,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <style>
-    pre {
-      line-height: 1.25;
-      font-size: 1rem;
-      margin: 0;
-    }
-
-    .ig-highlight {
-      vertical-align: baseline;
-    }
+    pre { line-height: 1.25; font-size: 1rem; margin: 0; }
+    .ig-highlight { vertical-align: baseline; }
   </style>
 </head>
 
@@ -27,12 +20,40 @@
   <section class="hero text-center py-3">
     <div class="container">
       <h1 class="display-4 fw-bold mb-2">Email Analysis Results</h1>
+
+      <!-- Analyzing pill -->
       <div class="d-inline-block mb-2 px-4 py-2 bg-white text-dark border rounded-2 shadow-sm">
         Analyzing: <strong>{{ email.filename }}</strong>
       </div>
-      <div class="d-inline-block ms-3 mb-2 px-4 py-2 rounded-2 text-white"
-        style="background-color: {% if analysis.total_risk_points > 50 %}#dc3545{% elif analysis.total_risk_points > 20 %}#ffc107; color: #000{% else %}#28a745{% endif %};">
-        Total Risk: <strong>{{ analysis.total_risk_points }}</strong> points
+
+      {# compute score + verdict colours up-front #}
+      {% set score = analysis.total_risk_points|default(0)|int %}
+      {% set verdict   = 'Safe' %}
+      {% set v_bg      = '#28a745' %}
+      {% set v_color   = '#fff' %}
+      {% if score == 0 %}
+        {% set verdict = 'Safe' %}{% set v_bg = '#28a745' %}{% set v_color = '#fff' %}
+      {% elif score <= 20 %}
+        {% set verdict = 'Likely Safe' %}{% set v_bg = '#20c997' %}{% set v_color = '#fff' %}
+      {% elif score <= 50 %}
+        {% set verdict = 'Caution' %}{% set v_bg = '#ffc107' %}{% set v_color = '#000' %}
+      {% elif score <= 80 %}
+        {% set verdict = 'Phishing Likely' %}{% set v_bg = '#dc3545' %}{% set v_color = '#fff' %}
+      {% else %}
+        {% set verdict = 'Dangerous' %}{% set v_bg = '#8b0000' %}{% set v_color = '#fff' %}
+      {% endif %}
+
+      <!-- Risk + Verdict grouped; verdict sits to the RIGHT of Total Risk -->
+      <div class="d-inline-flex align-items-center gap-2 ms-3 mb-2">
+        <div class="px-4 py-2 rounded-2 text-white"
+             style="background-color:
+               {% if score > 50 %}#dc3545{% elif score > 20 %}#ffc107; color:#000{% else %}#28a745{% endif %};">
+          Total Risk: <strong>{{ score }}</strong> points
+        </div>
+        <div class="px-4 py-2 rounded-2"
+             style="background-color: {{ v_bg }}; color: {{ v_color }};">
+          Verdict: <strong>{{ verdict }}</strong>
+        </div>
       </div>
     </div>
   </section>
@@ -73,7 +94,7 @@
 
   <!-- Tooltip -->
   <div id="customTooltip" class="position-fixed text-white p-2 rounded shadow-sm small text-center"
-    style="max-width: 300px; display: none; z-index: 1070; pointer-events: none;" aria-hidden="true">
+       style="max-width: 300px; display: none; z-index: 1070; pointer-events: none;" aria-hidden="true">
     <div id="tooltipText" style="white-space: pre-wrap;"></div>
   </div>
 
@@ -90,11 +111,8 @@
 
       const escRe = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const escHtml = s => String(s)
-        .replace(/&/g, '&amp;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
+        .replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
       const mergedMap = new Map();
       for (const h of highlights) {
@@ -114,16 +132,15 @@
           const regex = new RegExp(escRe(h.text), 'gi');
           const tooltip = escHtml(h.messages.filter(Boolean).join('&#10;• '));
 
-          // assign colour by risk level
-          let color = "#ffff00"; // default yellow
-          if (h.risk_level === "high") color = "#ff4d4d";      // red
-          else if (h.risk_level === "medium") color = "#ffcc00"; // amber
-          else if (h.risk_level === "low") color = "#7CFC00";    // green
-          else if (h.risk_level === "info") color = "#00bfff";   // blue
+          // Colour by risk level
+          let color = "#ffff00";
+          if (h.risk_level === "high") color = "#ff4d4d";
+          else if (h.risk_level === "medium") color = "#ffcc00";
+          else if (h.risk_level === "low") color = "#7CFC00";
+          else if (h.risk_level === "info") color = "#00bfff";
 
           const replacement =
             `<span class="ig-highlight" style="display:inline; vertical-align:baseline; background-color:${color}; color:black; font-weight:bold; padding:1px 2px; border-radius:3px; line-height:1;" data-tooltip="${tooltip}">${escHtml(h.text)}</span>`;
-
           content = content.replace(regex, replacement);
         });
         el.innerHTML = content;
@@ -147,13 +164,11 @@
       tooltip.style.display = 'block';
       positionTooltip(event);
     }
-
     function positionTooltip(event) {
       const tooltip = document.getElementById('customTooltip');
       tooltip.style.left = `${event.pageX - tooltip.offsetWidth / 2}px`;
-      tooltip.style.top = `${event.pageY - tooltip.offsetHeight - 12}px`;
+      tooltip.style.top  = `${event.pageY - tooltip.offsetHeight - 12}px`;
     }
-
     function hideTooltip() {
       document.getElementById('customTooltip').style.display = 'none';
     }
