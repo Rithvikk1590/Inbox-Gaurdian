@@ -37,33 +37,21 @@
       {% endif %};">
         Total Risk: <strong>{{ analysis.total_risk_points }}</strong> points
       </div>
-      <div class="d-inline-block ms-3 mb-2 px-4 py-2 rounded-2 text-white"
-        style="background-color: #007bff;">
-        Machine Learning output: <strong>{{ ml_output }}</strong>
-    </div>
 
       <div class="badge-box px-4 py-2 rounded-2 text-white fw-bold shadow-sm" style="background-color:
       {% if analysis.verdict == 'Phishing' or analysis.verdict == 'Likely phishing' %}#dc3545
       {% elif analysis.verdict == 'Suspicious' %}#ffc107; color:#000
       {% else %}#28a745
       {% endif %};">
-        Verdict: <strong>{{ analysis.verdict }}</strong>
+        Rule-Based Verdict: <strong>{{ analysis.verdict }}</strong>
+      </div>
+
+      <div class="badge-box px-4 py-2 rounded-2 text-white fw-bold shadow-sm" style="background-color: #007bff;">
+        Machine Learning Verdict: <strong>{{ ml_output }}</strong>
       </div>
 
     </div>
-</section>
-
-  <!-- Verdict -->
-  <!-- <section class="container my-3 text-center">
-    <div class="d-inline-block px-4 py-2 rounded-2 text-white fw-bold shadow-sm" style="background-color: 
-        {% if analysis.verdict == 'Phishing' %}#dc3545
-        {% elif analysis.verdict == 'Suspicious' %}#ffc107; color:#000
-        {% else %}#28a745
-        {% endif %};">
-      Verdict: <strong>{{ analysis.verdict }}</strong>
-    </div>
-  </section> -->
-
+  </section>
 
   <!-- Sender -->
   <section class="container my-3">

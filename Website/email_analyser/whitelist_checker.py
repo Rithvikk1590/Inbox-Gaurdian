@@ -32,13 +32,13 @@ def check_whitelist(email_data: dict) -> dict:
 
     # Extract domain
     if "@" not in sender:
-        return {"risk_points": 5, "body_highlights": [{"text": sender, "hover_message": "Invalid sender format", "risk_level": "high"}]}
+        return {"risk_points": 20, "body_highlights": [{"text": sender, "hover_message": "Invalid sender format", "risk_level": "high"}]}
 
     try:
         _, domain = sender.rsplit("@", 1)
         domain = domain.strip(">")
     except ValueError:
-        return {"risk_points": 5, "body_highlights": [...]}
+        return {"risk_points": 20, "body_highlights": [{"text": sender, "hover_message": "Invalid sender format", "risk_level": "high"}]}
 
     # 1. Whitelist Check
     trusted_senders = [s.lower() for s in WHITELIST.get("trusted_senders", [])]
@@ -47,7 +47,7 @@ def check_whitelist(email_data: dict) -> dict:
     if sender in trusted_senders or domain in trusted_domains:
         return True
     else:
-        risk += 3
+        risk += 12
         highlights.append({
             "text": sender,
             "hover_message": "Sender/domain not in whitelist: +3",
@@ -60,14 +60,15 @@ def check_whitelist(email_data: dict) -> dict:
         
         if Dcheck != None and Dcheck < 30:
             print(f"New domain detected: {domain} ({Dcheck} days old)")
-            risk += 4
+            risk += 8
             suspicious_domains.append(domain)
             highlights.append({
                 "text": domain,
                 "hover_message": f"Newly registered domain ({Dcheck} days old): +4",
-                "risk_level": "high"
+                "risk_level": "medium"
             })
         elif Dcheck > 30:
+            # Barns - the return for this is it not implemented yet?
             risk = risk
             print(f"Domain is mature: {domain} ({Dcheck} days old)")
         else:
@@ -77,16 +78,16 @@ def check_whitelist(email_data: dict) -> dict:
             "risk_level": "medium"
             })
             suspicious_domains.append(domain) # cannot find domain on whois, suspicious unknown 
-            risk += 2
+            risk += 4
 
     except Exception as e:
-        print(f"💥 Unexpected error in WHOIS block: {type(e).__name__}: {e}")
+        print(f"Unexpected error in WHOIS block: {type(e).__name__}: {e}")
         highlights.append({
             "text": domain,
             "hover_message": "Could not analyze domain (may be suspicious): +2",
             "risk_level": "medium"
         })
         suspicious_domains.append(domain)
-        risk += 2
+        risk += 4
 
     return {"risk_points": risk, "body_highlights": highlights}
