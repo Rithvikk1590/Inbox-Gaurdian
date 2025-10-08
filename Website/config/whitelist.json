@@ -2,11 +2,23 @@
   "trusted_senders": [
     "support@paypal.com",
     "security@microsoft.com",
-    "no-reply@google.com"
+    "no-reply@google.com",
+    "registrar@singaporetech.edu.sg",
+    "fas@singaporetech.edu.sg",
+    "lms.support@singaporetech.edu.sg"
+
   ],
   "trusted_domains": [
     "gov.sg",
     "ntu.edu.sg",
-    "moh.gov.sg"
+    "moh.gov.sg",
+    "sit.singaporetech.edu.sg",
+    "singaporetech.edu.sg",
+    "nus.edu.sg",
+    "suss.edu.sg",
+    "gmail.com",
+    "outlook.com",
+    "yahoo.com",
+    "hotmail.com"
   ]
 }

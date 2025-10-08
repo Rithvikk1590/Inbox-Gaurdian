@@ -37,7 +37,6 @@ def analyze_urls(email_data):
             })
             continue  # Skip other checks
 
-
         # HTTP (insecure connection) vs HTTPS detection 
         elif url_lower.startswith("http://"):
             risk += 20
