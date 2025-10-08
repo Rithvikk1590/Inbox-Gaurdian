@@ -2,10 +2,16 @@ from flask import Flask, render_template, request, redirect, url_for, session
 import uuid
 import re
 import pandas as pd
+import pickle
 
 # NEW imports from the package
 from email_analyser.parser import parse_eml_to_dict
 from email_analyser.aggregator import analyse_email_content
+
+with open("vectorizer.pkl", "rb") as f:
+    vectorizer = pickle.load(f)
+with open(r"C:\Users\asus\OneDrive\Documents\SIT Notes 2025\PRG Fundamentals\Python Project\Inbox-Gaurdian\Website\m1_model.pkl", "rb") as f:
+    ml_model = pickle.load(f)
 
 app = Flask(__name__, static_folder='static')
 app.secret_key = 'your-secret-key-here'  # replace in production
@@ -188,7 +194,16 @@ def analysis(email_id):
             return redirect(url_for("home"))
 
         analysis = analyse_email_content(email_data)
-        return render_template("analysis.html", email=email_data, analysis=analysis, email_id=email_id)
+
+        # ML prediction on email body
+        body_text = email_data.get("body", "")
+        if body_text:
+            body_tfidf = vectorizer.transform([body_text])
+            ml_output = ml_model.predict(body_tfidf)[0]
+        else:
+            ml_output = "N/A"
+
+        return render_template("analysis.html", email=email_data, analysis=analysis, email_id=email_id, ml_output=ml_output)
     except Exception as e:
         print("Error in analysis:", e)
         return redirect(url_for("home"))
@@ -208,7 +223,14 @@ def manual_analysis():
 
     analysis = analyse_email_content(email_data)
 
-    return render_template("analysis.html", email=email_data, analysis=analysis, email_id="manual")
+        # ML prediction on manual input
+    if body:
+        body_tfidf = vectorizer.transform([body])
+        ml_output = ml_model.predict(body_tfidf)[0]
+    else:
+        ml_output = "N/A"
+
+    return render_template("analysis.html", email=email_data, analysis=analysis, email_id="manual", ml_output=ml_output)
 
 @app.route("/upload_csv", methods=["POST"])
 def upload_csv():
