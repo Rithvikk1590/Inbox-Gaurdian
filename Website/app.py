@@ -204,6 +204,11 @@ def analysis(email_id):
 
         analysis = analyse_email_content(email_data)
 
+        # ✅ Ensure rule-based verdict exists
+        total = analysis.get("total_risk_points")
+        if "verdict" not in analysis or not analysis["verdict"]:
+            analysis["verdict"] = risk_verdict(total)
+
         # ML prediction on email body
         body_text = email_data.get("body", "")
         if body_text:
@@ -212,7 +217,13 @@ def analysis(email_id):
         else:
             ml_output = "N/A"
 
-        return render_template("analysis.html", email=email_data, analysis=analysis, email_id=email_id, ml_output=ml_output)
+        return render_template(
+            "analysis.html",
+            email=email_data,
+            analysis=analysis,
+            email_id=email_id,
+            ml_output=ml_output
+        )
     except Exception as e:
         print("Error in analysis:", e)
         return redirect(url_for("home"))

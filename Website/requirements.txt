@@ -2,3 +2,4 @@ flask
 pandas
 textblob
 python-whois
+scikit-learn
