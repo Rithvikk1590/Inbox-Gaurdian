@@ -1,5 +1,9 @@
 # edit_distance.py
 import re
+from config.whitelist import WHITELIST
+
+SAFE_DOMAINS = WHITELIST['trusted_domains']
+SAFE_ROOTS = list({d.split(".", 1)[0] for d in SAFE_DOMAINS})  # e.g., ["paypal", "microsoft", ...]
 
 def _lev(a, b):
     dp = [[i + j if i * j == 0 else 0 for j in range(len(b) + 1)] for i in range(len(a) + 1)]
@@ -11,10 +15,6 @@ def _lev(a, b):
                 dp[i - 1][j - 1] + (a[i - 1] != b[j - 1]),
             )
     return dp[-1][-1]
-
-
-SAFE_DOMAINS = ["paypal.com", "microsoft.com", "google.com", "gov.sg", "ntu.edu.sg"]
-SAFE_ROOTS = list({d.split(".", 1)[0] for d in SAFE_DOMAINS})  # e.g., ["paypal", "microsoft", ...]
 
 
 def _domain_from_url_or_text(s: str) -> str:

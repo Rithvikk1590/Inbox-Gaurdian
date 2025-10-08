@@ -25,21 +25,45 @@
 
   <!-- Header -->
   <section class="hero text-center py-3">
-    <div class="container">
-      <h1 class="display-4 fw-bold mb-2">Email Analysis Results</h1>
-      <div class="d-inline-block mb-2 px-4 py-2 bg-white text-dark border rounded-2 shadow-sm">
+    <div class="d-flex justify-content-center align-items-center gap-3 mb-2">
+
+      <div class="badge-box px-4 py-2 bg-white text-dark border rounded-2 shadow-sm">
         Analyzing: <strong>{{ email.filename }}</strong>
       </div>
-      <div class="d-inline-block ms-3 mb-2 px-4 py-2 rounded-2 text-white"
-        style="background-color: {% if analysis.total_risk_points > 50 %}#dc3545{% elif analysis.total_risk_points > 20 %}#ffc107; color: #000{% else %}#28a745{% endif %};">
+
+      <div class="badge-box px-4 py-2 rounded-2 text-white fw-semibold shadow-sm" style="background-color: {% if analysis.total_risk_points > 50 %}#dc3545
+      {% elif analysis.total_risk_points > 20 %}#ffc107; color:#000
+      {% else %}#28a745
+      {% endif %};">
         Total Risk: <strong>{{ analysis.total_risk_points }}</strong> points
       </div>
       <div class="d-inline-block ms-3 mb-2 px-4 py-2 rounded-2 text-white"
         style="background-color: #007bff;">
         Machine Learning output: <strong>{{ ml_output }}</strong>
     </div>
+
+      <div class="badge-box px-4 py-2 rounded-2 text-white fw-bold shadow-sm" style="background-color:
+      {% if analysis.verdict == 'Phishing' or analysis.verdict == 'Likely phishing' %}#dc3545
+      {% elif analysis.verdict == 'Suspicious' %}#ffc107; color:#000
+      {% else %}#28a745
+      {% endif %};">
+        Verdict: <strong>{{ analysis.verdict }}</strong>
+      </div>
+
     </div>
-  </section>
+</section>
+
+  <!-- Verdict -->
+  <!-- <section class="container my-3 text-center">
+    <div class="d-inline-block px-4 py-2 rounded-2 text-white fw-bold shadow-sm" style="background-color: 
+        {% if analysis.verdict == 'Phishing' %}#dc3545
+        {% elif analysis.verdict == 'Suspicious' %}#ffc107; color:#000
+        {% else %}#28a745
+        {% endif %};">
+      Verdict: <strong>{{ analysis.verdict }}</strong>
+    </div>
+  </section> -->
+
 
   <!-- Sender -->
   <section class="container my-3">
@@ -54,7 +78,8 @@
     <div class="card-header bg-dark text-white p-2">
       <h5 class="mb-0 text-white fw-semibold">Subject</h5>
     </div>
-    <pre id="email-subject" class="bg-body-tertiary text-dark p-2 m-0 rounded-0 border-0">{{ email.subject | trim }}</pre>
+    <pre id="email-subject"
+      class="bg-body-tertiary text-dark p-2 m-0 rounded-0 border-0">{{ email.subject | trim }}</pre>
   </section>
 
   <!-- Body -->
@@ -71,10 +96,10 @@
       <h5 class="mb-0 text-white fw-semibold">Attachment</h5>
     </div>
     <div id="email-attachments" class="bg-body-tertiary text-dark p-2 m-0 rounded-0 border-0">
-  {% if analysis.attachment_warnings %}
+      {% if analysis.attachment_warnings %}
       <ul style="list-style:none; padding-left:0; margin:0;">
-          {% for warn in analysis.attachment_warnings %}
-              <li style="
+        {% for warn in analysis.attachment_warnings %}
+        <li style="
                   {% if warn.risk_level == 'high' %}
                       background-color:#f5c6cb;
                   {% elif warn.risk_level == 'medium' %}
@@ -83,23 +108,23 @@
                       background-color:#d4edda;
                   {% endif %}
                   color:#000; padding:6px; margin-bottom:4px; border-radius:4px;">
-                  <strong>{{ warn.filename }}</strong><br>
-                  <small>{{ warn.message }}</small>
-              </li>
-          {% endfor %}
+          <strong>{{ warn.filename }}</strong><br>
+          <small>{{ warn.message }}</small>
+        </li>
+        {% endfor %}
       </ul>
-  {% elif email.attachments %}
+      {% elif email.attachments %}
       <ul style="list-style:none; padding-left:0; margin:0;">
-          {% for a in email.attachments %}
-              <li style="background-color:#d4edda; color:#000; padding:6px; margin-bottom:4px; border-radius:4px;">
-                  {{ a }} (Safe)
-              </li>
-          {% endfor %}
+        {% for a in email.attachments %}
+        <li style="background-color:#d4edda; color:#000; padding:6px; margin-bottom:4px; border-radius:4px;">
+          {{ a }} (Safe)
+        </li>
+        {% endfor %}
       </ul>
-  {% else %}
+      {% else %}
       <p class="m-0">No attachments</p>
-  {% endif %}
-</div>
+      {% endif %}
+    </div>
   </section>
 
   <!-- Tooltip -->
@@ -116,57 +141,58 @@
         document.getElementById('email-from')
       ].filter(Boolean);
 
-      const highlights = {{ analysis.body_highlights | tojson | safe if analysis.body_highlights else '[]' }};
-      if (!Array.isArray(highlights) || highlights.length === 0) return;
+      const highlights = {{ analysis.body_highlights | tojson | safe if analysis.body_highlights else '[]'
+    }};
+    if (!Array.isArray(highlights) || highlights.length === 0) return;
 
-      const escRe = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const escHtml = s => String(s)
-        .replace(/&/g, '&amp;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
+    const escRe = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escHtml = s => String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
 
-      const mergedMap = new Map();
-      for (const h of highlights) {
-        if (!h || !h.text) continue;
-        const key = `${h.section || 'any'}|${String(h.text).toLowerCase()}`;
-        if (!mergedMap.has(key)) {
-          mergedMap.set(key, { text: h.text, section: h.section || 'any', risk_level: h.risk_level || 'medium', messages: [] });
-        }
-        const msg = h.hover_message || h.message || h.reason || h.label || 'Flagged item';
-        mergedMap.get(key).messages.push(msg);
+    const mergedMap = new Map();
+    for (const h of highlights) {
+      if (!h || !h.text) continue;
+      const key = `${h.section || 'any'}|${String(h.text).toLowerCase()}`;
+      if (!mergedMap.has(key)) {
+        mergedMap.set(key, { text: h.text, section: h.section || 'any', risk_level: h.risk_level || 'medium', messages: [] });
       }
-      const merged = Array.from(mergedMap.values());
+      const msg = h.hover_message || h.message || h.reason || h.label || 'Flagged item';
+      mergedMap.get(key).messages.push(msg);
+    }
+    const merged = Array.from(mergedMap.values());
 
-      targets.forEach(el => {
-        let content = el.textContent;
-        merged.forEach(h => {
-          const regex = new RegExp(escRe(h.text), 'gi');
-          const tooltip = escHtml(h.messages.filter(Boolean).join('&#10;• '));
+    targets.forEach(el => {
+      let content = el.textContent;
+      merged.forEach(h => {
+        const regex = new RegExp(escRe(h.text), 'gi');
+        const tooltip = escHtml(h.messages.filter(Boolean).join('&#10;• '));
 
-          // assign colour by risk level
-          let color = "#ffff00"; // default yellow
-          if (h.risk_level === "high") color = "#ff4d4d";      // red
-          else if (h.risk_level === "medium") color = "#ffcc00"; // amber
-          else if (h.risk_level === "low") color = "#7CFC00";    // green
-          else if (h.risk_level === "info") color = "#00bfff";   // blue
+        // assign colour by risk level
+        let color = "#ffff00"; // default yellow
+        if (h.risk_level === "high") color = "#ff4d4d";      // red
+        else if (h.risk_level === "medium") color = "#ffcc00"; // amber
+        else if (h.risk_level === "low") color = "#7CFC00";    // green
+        else if (h.risk_level === "info") color = "#00bfff";   // blue
 
-          const replacement =
-            `<span class="ig-highlight" style="display:inline; vertical-align:baseline; background-color:${color}; color:black; font-weight:bold; padding:1px 2px; border-radius:3px; line-height:1;" data-tooltip="${tooltip}">${escHtml(h.text)}</span>`;
+        const replacement =
+          `<span class="ig-highlight" style="display:inline; vertical-align:baseline; background-color:${color}; color:black; font-weight:bold; padding:1px 2px; border-radius:3px; line-height:1;" data-tooltip="${tooltip}">${escHtml(h.text)}</span>`;
 
-          content = content.replace(regex, replacement);
-        });
-        el.innerHTML = content;
-
-        el.addEventListener('mouseover', e => {
-          const t = e.target.closest('.ig-highlight');
-          if (!t) return;
-          showTooltip(e, t.getAttribute('data-tooltip') || '', t.style.backgroundColor);
-        });
-        el.addEventListener('mousemove', positionTooltip);
-        el.addEventListener('mouseout', hideTooltip);
+        content = content.replace(regex, replacement);
       });
+      el.innerHTML = content;
+
+      el.addEventListener('mouseover', e => {
+        const t = e.target.closest('.ig-highlight');
+        if (!t) return;
+        showTooltip(e, t.getAttribute('data-tooltip') || '', t.style.backgroundColor);
+      });
+      el.addEventListener('mousemove', positionTooltip);
+      el.addEventListener('mouseout', hideTooltip);
+    });
     });
 
     function showTooltip(event, text, bgColor) {
@@ -190,4 +216,5 @@
     }
   </script>
 </body>
+
 </html>

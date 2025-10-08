@@ -16,6 +16,15 @@ with open(r"C:\Users\asus\OneDrive\Documents\SIT Notes 2025\PRG Fundamentals\Pyt
 app = Flask(__name__, static_folder='static')
 app.secret_key = 'your-secret-key-here'  # replace in production
 
+def risk_verdict(points: int) -> str:
+    if points is None:
+        return "Unknown"
+    if points > 50:
+        return "Phishing"
+    if points > 20:
+        return "Suspicious"
+    return "Safe"
+
 def analyse_csv(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     """
     Clean + annotate the CSV with rule-based flags.
@@ -114,7 +123,7 @@ def analyse_csv(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     results["total_risk"] = total_risk
 
     return df, results
-    
+
 
 def clean_csv_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     # 1) Standardize column names
@@ -222,6 +231,10 @@ def manual_analysis():
     }
 
     analysis = analyse_email_content(email_data)
+    # --- add verdict if missing ---
+    total = analysis.get("total_risk_points")
+    if "verdict" not in analysis:
+        analysis["verdict"] = risk_verdict(total)
 
         # ML prediction on manual input
     if body:
