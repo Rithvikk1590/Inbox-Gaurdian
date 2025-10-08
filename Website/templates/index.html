@@ -123,17 +123,16 @@
 
 <!-- CSV Viewer Section (only shows when CSV is uploaded) -->
 {% if csv_table %}
-<div class="mt-4">
-  <h3>Cleaned CSV Data</h3>
-  <div class="card shadow-sm p-4">
-    {{ csv_table|safe }}
-  </div>
-
-  <!-- Button: only shows after CSV is cleaned -->
-  <div class="text-center mt-3">
-    <a href="/#csv-panel" class="btn btn-primary">Clean Another CSV</a>
-  </div>
-</div>
+    <div class="csv-results">
+        <h2>CSV Analysis Results</h2>
+        <div style="margin: 10px 0; padding: 10px; border-radius: 8px; 
+                    background-color: #222; color: #fff; font-size: 18px;">
+            <strong>Total Risk: {{ total_risk }} points</strong>
+        </div>
+        <div class="csv-table">
+            {{ csv_table | safe }}
+        </div>
+    </div>
 {% endif %}
 
 {% if csv_analysis %}

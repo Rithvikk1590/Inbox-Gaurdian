@@ -11,59 +11,104 @@ app = Flask(__name__, static_folder='static')
 app.secret_key = 'your-secret-key-here'  # replace in production
 
 def analyse_csv(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
-    print(dict)
     """
     Clean + annotate the CSV with rule-based flags.
     Returns (annotated DataFrame, summary dict).
     """
     results = {
         "suspicious_subject_count": 0,
+        "suspicious_body_count": 0,
         "suspicious_attachments": 0,
         "bad_sender_emails": 0,
-        "spam_marked_rows": 0
+        "spam_marked_rows": 0,
+        "total_rows": len(df)
     }
 
     flagged_rows = []
+    df["Risk Points"] = 0
+
+    # Suspicious keywords for matching
+    suspicious_keywords = ["urgent", "verify", "account", "password",
+                           "bank", "lottery", "win", "free", "click"]
+
+    # Suspicious file extensions
+    exec_extensions = [".exe", ".scr", ".js", ".bat", ".vbs"]
+    doc_extensions = [".docm", ".xlsm", ".pptm"]  # scripts can hide here
 
     for i, row in df.iterrows():
         reasons = []
+        points = 0
 
-        # Suspicious subjects
-        suspicious_keywords = ["urgent", "verify", "account", "password",
-                               "bank", "lottery", "win", "free", "click"]
-        if "Subject" in df.columns and pd.notna(row["Subject"]):
-            if any(word in row["Subject"].lower() for word in suspicious_keywords):
-                results["suspicious_subject_count"] += 1
-                reasons.append("Suspicious Subject")
-
-        # Suspicious attachments
-        bad_extensions = [".exe", ".scr", ".js", ".bat", ".vbs"]
-        if "Attachments" in df.columns and pd.notna(row["Attachments"]):
-            if any(row["Attachments"].lower().endswith(ext) for ext in bad_extensions):
-                results["suspicious_attachments"] += 1
-                reasons.append("Bad Attachment")
-
-        # Bad sender emails
+        # --- Whitelist Checker ---
         if "From" in df.columns and pd.notna(row["From"]):
             sender = row["From"].strip()
-            if not sender or "@" not in sender or sender.endswith("."):
+            if "@" not in sender:
                 results["bad_sender_emails"] += 1
-                reasons.append("Bad Sender")
+                reasons.append("Unknown Sender")
+                points += 20
+            else:
+                if not sender.endswith("@sit.singaporetech.edu.sg"):
+                    reasons.append("Unknown Sender")
+                    points += 20
 
-        # Spam-marked rows
+        # --- Keyword Detector: Subject ---
+        subject_hits = []
+        if "Subject" in df.columns and pd.notna(row["Subject"]):
+            subject = row["Subject"].lower()
+            for word in suspicious_keywords:
+                if word in subject:
+                    subject_hits.append(word)
+                    points += 15
+            if subject_hits:
+                results["suspicious_subject_count"] += 1
+                reasons.append(f"Suspicious keywords in subject: {', '.join(subject_hits)}")
+                points = min(points, 45)
+
+        # --- Keyword Detector: Body ---
+        body_hits = []
+        if "Body" in df.columns and pd.notna(row["Body"]):
+            body = row["Body"].lower()
+            for word in suspicious_keywords:
+                if word in body:
+                    body_hits.append(word)
+                    points += 5
+            if body_hits:
+                results["suspicious_body_count"] += 1
+                reasons.append(f"Suspicious keywords in body: {', '.join(body_hits)}")
+                points = min(points, 20)
+
+        # --- File Extension Detection ---
+        if "Attachments" in df.columns and pd.notna(row["Attachments"]):
+            attach = str(row["Attachments"]).lower()
+            if any(attach.endswith(ext) for ext in exec_extensions):
+                results["suspicious_attachments"] += 1
+                reasons.append("Executable file")
+                points += 50
+            elif any(attach.endswith(ext) for ext in doc_extensions):
+                results["suspicious_attachments"] += 1
+                reasons.append("Suspicious document file")
+                points += 30
+
+        # --- Spam flag ---
         if "is_spam" in df.columns and row["is_spam"] == 1:
             results["spam_marked_rows"] += 1
             reasons.append("Spam Row")
+            points += 20
 
+        # Save flags + points
         if reasons:
             flagged_rows.append((i, reasons))
+        df.at[i, "Risk Points"] = points
 
-    # Add a new column "Flags" with reasons
+    # Add Flags column with reasons
     df["Flags"] = ""
     for idx, reasons in flagged_rows:
         df.at[idx, "Flags"] = ", ".join(reasons)
+    total_risk = int(df["Risk Points"].sum())
+    results["total_risk"] = total_risk
 
     return df, results
+    
 
 def clean_csv_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     # 1) Standardize column names
@@ -131,6 +176,7 @@ def upload_eml():
         session[email_id] = email_data
         return render_template("index.html", email=email_data, email_id=email_id)
     except Exception as e:
+        
         print("Error parsing email:", e)
         return render_template("index.html")
 
@@ -142,11 +188,11 @@ def analysis(email_id):
             return redirect(url_for("home"))
 
         analysis = analyse_email_content(email_data)
-        return render_template("analysis.html", email=email_data, analysis=analysis, email_id=email_id, show_analysis=True)
+        return render_template("analysis.html", email=email_data, analysis=analysis, email_id=email_id)
     except Exception as e:
         print("Error in analysis:", e)
         return redirect(url_for("home"))
-    
+
 @app.route("/manual_analysis", methods=["POST"])
 def manual_analysis():
     sender = request.form.get("manual_sender", "")
@@ -180,24 +226,42 @@ def upload_csv():
 
         # --- Styling: force white everywhere, then override Flags column ---
         def style_flags(val):
-            if isinstance(val, str) and "Suspicious Subject" in val:
-                return "background-color: #ffeeba; color: #000 !important;"
-            if isinstance(val, str) and "Bad Attachment" in val:
-                return "background-color: #f5c6cb; color: #000 !important;"
-            if isinstance(val, str) and "Bad Sender" in val:
-                return "background-color: #bee5eb; color: #000 !important;"
-            if isinstance(val, str) and "Spam Row" in val:
-                return "background-color: #d4edda; color: #000 !important;"
-            return "color: #000 !important;"
+            if isinstance(val, str):
+                if "Suspicious Subject" in val or "Suspicious keywords in subject" in val:
+                    return "background-color: #ffeeba; color: #000 !important;"  # yellow
+                if "Bad Attachment" in val or "Executable file" in val or "Suspicious document file" in val:
+                    return "background-color: #f5c6cb; color: #000 !important;"  # red
+                if "Bad Sender" in val or "Unknown Sender" in val:
+                    return "background-color: #bee5eb; color: #000 !important;"  # blue
+                if "Spam Row" in val:
+                    return "background-color: #d4edda; color: #000 !important;"  # green
+            return "color: #fff !important;"
 
+        def style_risk_points(val):
+            try:
+                val = int(val)
+                if val == 0:
+                    return "background-color: #28a745; color: #fff;"  # green safe
+                elif val < 30:
+                    return "background-color: #ffc107; color: #000;"  # yellow medium
+                elif val < 70:
+                    return "background-color: #fd7e14; color: #fff;"  # orange high
+                else:
+                    return "background-color: #dc3545; color: #fff;"  # red critical
+            except:
+                return ""
+            
         styled = (
             df.style
-              .set_properties(**{"color": "#fff"})   # everything white
-              .set_table_styles([                    # headers also white
+              .set_properties(**{"color": "#fff"})
+              .set_table_styles([
                   {"selector": "th", "props": [("color", "#fff")]},
                   {"selector": "td", "props": [("color", "#fff")]},
               ])
         )
+
+        styled = styled.applymap(style_flags, subset=["Flags"])
+        styled = styled.applymap(style_risk_points, subset=["Risk Points"])
 
         # Override just the Flags column (after global white)
         styled = styled.applymap(style_flags, subset=["Flags"])
@@ -215,7 +279,8 @@ def upload_csv():
         return render_template(
             "index.html",
             csv_table=table_html,
-            csv_analysis=detection_results
+            csv_analysis=detection_results,
+            total_risk=detection_results.get("total_risk", 0)
         )
 
     except Exception as e:

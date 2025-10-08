@@ -2,12 +2,19 @@ import os
 
 # Base points per risky extension (tweak as you like)
 RISKY_EXT_POINTS = {
-    ".exe": 50, ".scr": 50, ".pif": 50,
-    ".bat": 40, ".cmd": 40, ".ps1": 40, ".vbs": 30, ".js": 30, ".jar": 30,
+    # Executables (very dangerous)
+    ".exe": 30, ".scr": 30, ".pif": 30,
+    ".bat": 30, ".cmd": 30, ".ps1": 30,
+    ".vbs": 30, ".js": 30, ".jar": 30,
     ".msi": 30, ".apk": 30,
-    ".iso": 25, ".img": 25, ".chm": 25,
-    ".zip": 15, ".rar": 15, ".7z": 15,
-    ".lnk": 40, ".hta": 40,
+    ".lnk": 30, ".hta": 30,
+
+    # Document types (can carry macros / exploits)
+    ".doc": 15, ".docx": 15, ".xls": 15, ".xlsx": 15,
+    ".ppt": 15, ".pptx": 15, ".pdf": 15, ".rtf": 15,
+
+    # Archives (often used to hide payloads)
+    ".zip": 15, ".rar": 15, ".7z": 15, ".iso": 15, ".img": 15, ".chm": 15,
 }
 
 HIDDEN_EXECUTABLES = {".exe", ".bat", ".cmd", ".vbs", ".js", ".scr", ".pif"}
