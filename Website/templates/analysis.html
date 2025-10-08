@@ -66,9 +66,36 @@
     <div class="card-header bg-dark text-white p-2">
       <h5 class="mb-0 text-white fw-semibold">Attachment</h5>
     </div>
-    <pre id="email-attachments" class="bg-body-tertiary text-dark p-2 m-0 rounded-0 border-0">
-{% if email.attachments %}{% for a in email.attachments %}{{ a }}{% endfor %}{% else %}No attachments{% endif %}
-</pre>
+    <div id="email-attachments" class="bg-body-tertiary text-dark p-2 m-0 rounded-0 border-0">
+  {% if analysis.attachment_warnings %}
+      <ul style="list-style:none; padding-left:0; margin:0;">
+          {% for warn in analysis.attachment_warnings %}
+              <li style="
+                  {% if warn.risk_level == 'high' %}
+                      background-color:#f5c6cb;
+                  {% elif warn.risk_level == 'medium' %}
+                      background-color:#ffeeba;
+                  {% else %}
+                      background-color:#d4edda;
+                  {% endif %}
+                  color:#000; padding:6px; margin-bottom:4px; border-radius:4px;">
+                  <strong>{{ warn.filename }}</strong><br>
+                  <small>{{ warn.message }}</small>
+              </li>
+          {% endfor %}
+      </ul>
+  {% elif email.attachments %}
+      <ul style="list-style:none; padding-left:0; margin:0;">
+          {% for a in email.attachments %}
+              <li style="background-color:#d4edda; color:#000; padding:6px; margin-bottom:4px; border-radius:4px;">
+                  {{ a }} (Safe)
+              </li>
+          {% endfor %}
+      </ul>
+  {% else %}
+      <p class="m-0">No attachments</p>
+  {% endif %}
+</div>
   </section>
 
   <!-- Tooltip -->

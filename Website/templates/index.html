@@ -94,6 +94,20 @@
                 <td class="fw-bold text-success">From:</td>
                 <td class="text-light">{{ email.sender }}</td>
               </tr>
+              <tr>
+              <td class="fw-bold text-success">Attachments:</td>
+              <td class="text-light">
+                {% if email.attachments %}
+                  <ul class="mb-0" style="list-style: none; padding-left: 0;">
+                    {% for a in email.attachments %}
+                      <li>{{ a }}</li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  <span class="text-muted">No attachments</span>
+                {% endif %}
+              </td>
+            </tr>
             </tbody>
           </table>
         </div>
