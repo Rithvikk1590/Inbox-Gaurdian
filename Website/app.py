@@ -13,15 +13,17 @@ with open("./website/vectorizer.pkl", "rb") as f:
 with open("./website/m1_model.pkl", "rb") as f:
     ml_model = pickle.load(f)
 
+email_store = {}  # global in-memory store
 app = Flask(__name__, static_folder='static')
 app.secret_key = 'your-secret-key-here'  # replace in production
 
 def risk_verdict(points: int) -> str:
+    """Return textual risk verdict based on total risk score."""
     if points is None:
         return "Unknown"
-    if points > 50:
-        return "Phishing"
-    if points > 20:
+    if points >= 60:
+        return "Likely Phishing"
+    if points >= 25:
         return "Suspicious"
     return "Safe"
 
@@ -180,15 +182,20 @@ def guide():
 def upload_eml():
     try:
         f = request.files.get('eml_file')
-        if not f or not f.filename.endswith('.eml'):
-            return render_template("index.html")
+        # if not f or not f.filename.endswith('.eml'):
+        #     return render_template("index.html")
 
         email_id = str(uuid.uuid4())
         email_bytes = f.read()
         email_data = parse_eml_to_dict(email_bytes)
         email_data['filename'] = f.filename
 
-        session[email_id] = email_data
+        # store in memory, not session cookie
+        email_store[email_id] = email_data
+
+        # just store the key in the session (small)
+        session['last_email_id'] = email_id
+
         return render_template("index.html", email=email_data, email_id=email_id)
     except Exception as e:
         
@@ -198,7 +205,7 @@ def upload_eml():
 @app.route("/analysis/<email_id>")
 def analysis(email_id):
     try:
-        email_data = session.get(email_id)
+        email_data = email_store.get(email_id)
         if not email_data:
             return redirect(url_for("home"))
 
