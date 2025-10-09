@@ -29,169 +29,54 @@ def risk_verdict(points: int) -> str:
 
 # Map a CSV row to the dict shape expected by analyse_email_content()
 def _row_to_email_data(row: dict) -> dict:
-    sender = row.get("From") or row.get("Sender") or row.get("Email From") or ""
-    subject = row.get("Subject") or row.get("Title") or ""
-    body = row.get("Body") or row.get("Message") or row.get("Content") or ""
-    attachments = row.get("Attachments") or ""
+    # Normalize keys: lowercase + strip spaces
+    normalized = {str(k).strip().lower(): v for k, v in row.items()}
 
+    # Common variants for sender
+    sender = (
+        normalized.get("from")
+        or normalized.get("sender")
+        or normalized.get("email from")
+        or normalized.get("email")
+        or normalized.get("from address")
+        or ""
+    )
+
+    # Common variants for subject
+    subject = (
+        normalized.get("subject")
+        or normalized.get("title")
+        or normalized.get("email subject")
+        or ""
+    )
+
+    # Common variants for body
+    body = (
+        normalized.get("body")
+        or normalized.get("message")
+        or normalized.get("content")
+        or normalized.get("email body")
+        or ""
+    )
+
+    # Attachments
+    attachments = (
+        normalized.get("attachments")
+        or normalized.get("files")
+        or ""
+    )
     att_list = []
     if isinstance(attachments, str) and attachments.strip():
-        # split common delimiters
         import re
         parts = re.split(r"[,\|;]+", attachments)
         att_list = [p.strip() for p in parts if p.strip()]
 
     return {
-        "sender": sender,
-        "subject": subject,
-        "body": body,
+        "sender": sender.strip(),
+        "subject": subject.strip(),
+        "body": body.strip(),
         "attachments": att_list,
     }
-
-
-# def analyse_csv(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
-#     """
-#     Clean + annotate the CSV with rule-based flags.
-#     Returns (annotated DataFrame, summary dict).
-#     """
-#     results = {
-#         "suspicious_subject_count": 0,
-#         "suspicious_body_count": 0,
-#         "suspicious_attachments": 0,
-#         "bad_sender_emails": 0,
-#         "spam_marked_rows": 0,
-#         "total_rows": len(df)
-#     }
-
-#     flagged_rows = []
-#     df["Risk Points"] = 0
-
-#     # Suspicious keywords for matching
-#     suspicious_keywords = ["urgent", "verify", "account", "password",
-#                            "bank", "lottery", "win", "free", "click"]
-
-#     # Suspicious file extensions
-#     exec_extensions = [".exe", ".chm", ".pif", ".reg", ".scr", ".sct", ".hlp", ".shs", ".shb",
-#                        ".msi", ".msp", ".msc", ".class", ".com", ".dll", ".dmg", ".drv", ".grp",
-#                        ".ocx", ".ovl", ".sys", ".vdl", ".vxd"]
-#     doc_extensions = [".doc", ".xlsm", ".pptm"]  # scripts can hide here
-
-#     for i, row in df.iterrows():
-#         reasons = []
-#         points = 0
-
-#         # --- Whitelist Checker ---
-#         if "From" in df.columns and pd.notna(row["From"]):
-#             sender = row["From"].strip()
-#             if "@" not in sender:
-#                 results["bad_sender_emails"] += 1
-#                 reasons.append("Unknown Sender")
-#                 points += 20
-#             else:
-#                 if not sender.endswith("@sit.singaporetech.edu.sg"):
-#                     reasons.append("Unknown Sender")
-#                     points += 20
-
-#         # --- Keyword Detector: Subject ---
-#         subject_hits = []
-#         if "Subject" in df.columns and pd.notna(row["Subject"]):
-#             subject = row["Subject"].lower()
-#             for word in suspicious_keywords:
-#                 if word in subject:
-#                     subject_hits.append(word)
-#                     points += 15
-#             if subject_hits:
-#                 results["suspicious_subject_count"] += 1
-#                 reasons.append(f"Suspicious keywords in subject: {', '.join(subject_hits)}")
-#                 points = min(points, 45)
-
-#         # --- Keyword Detector: Body ---
-#         body_hits = []
-#         if "Body" in df.columns and pd.notna(row["Body"]):
-#             body = row["Body"].lower()
-#             for word in suspicious_keywords:
-#                 if word in body:
-#                     body_hits.append(word)
-#                     points += 5
-#             if body_hits:
-#                 results["suspicious_body_count"] += 1
-#                 reasons.append(f"Suspicious keywords in body: {', '.join(body_hits)}")
-#                 points = min(points, 20)
-
-#         # --- File Extension Detection ---
-#         if "Attachments" in df.columns and pd.notna(row["Attachments"]):
-#             attach = str(row["Attachments"]).lower()
-#             if any(attach.endswith(ext) for ext in exec_extensions):
-#                 results["suspicious_attachments"] += 1
-#                 reasons.append("Executable file")
-#                 points += 50
-#             elif any(attach.endswith(ext) for ext in doc_extensions):
-#                 results["suspicious_attachments"] += 1
-#                 reasons.append("Suspicious document file")
-#                 points += 30
-
-#         # --- Spam flag ---
-#         if "is_spam" in df.columns and row["is_spam"] == 1:
-#             results["spam_marked_rows"] += 1
-#             reasons.append("Spam Row")
-#             points += 20
-
-#         # Save flags + points
-#         if reasons:
-#             flagged_rows.append((i, reasons))
-#         df.at[i, "Risk Points"] = points
-
-#     # Add Flags column with reasons
-#     df["Flags"] = ""
-#     for idx, reasons in flagged_rows:
-#         df.at[idx, "Flags"] = ", ".join(reasons)
-#     total_risk = int(df["Risk Points"].sum())
-#     results["total_risk"] = total_risk
-
-#     return df, results
-
-
-# def clean_csv_dataframe(df: pd.DataFrame) -> pd.DataFrame:
-#     # 1) Standardize column names
-#     df.columns = [re.sub(r'\s+', ' ', c).strip() for c in df.columns]
-
-#     # 2) Normalize string cells: strip + collapse internal whitespace
-#     def _clean_str(x):
-#         x = re.sub(r'\s+', ' ', x)  # collapse runs of spaces/tabs/newlines
-#         return x.strip()
-
-#     for col in df.columns:
-#         if df[col].dtype == object:
-#             df[col] = df[col].astype(str).apply(_clean_str).replace({'': pd.NA, 'nan': pd.NA})
-
-#     # 3) Treat whitespace-only as missing, then drop all-empty rows/cols
-#     df.replace(r'^\s*$', pd.NA, regex=True, inplace=True)
-#     df.dropna(how='all', inplace=True)
-#     df.dropna(how='all', axis=1, inplace=True)
-
-#     # 4) Type fixes (optional but nice)
-#     if 'Age' in df.columns:
-#         df['Age'] = pd.to_numeric(df['Age'], errors='coerce').astype('Int64')
-
-#     if 'Email' in df.columns:
-#         df['Email'] = df['Email'].str.lower()
-#         # mark invalid emails as missing (optional)
-#         valid = df['Email'].str.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', na=False)
-#         df.loc[~valid, 'Email'] = pd.NA
-
-#     # 5) Business-rule filtering (tune as you like)
-#     key_cols = [c for c in ['Name', 'Email'] if c in df.columns]
-#     if key_cols:
-#         # drop rows that are missing BOTH Name and Email
-#         df.dropna(subset=key_cols, how='all', inplace=True)
-
-#     # 6) Remove duplicates (prefer keys if present)
-#     if key_cols:
-#         df.drop_duplicates(subset=key_cols, inplace=True)
-#     else:
-#         df.drop_duplicates(inplace=True)
-
-#     return df
 
 
 @app.route("/")
