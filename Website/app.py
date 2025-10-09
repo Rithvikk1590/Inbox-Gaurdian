@@ -8,9 +8,9 @@ import pickle
 from email_analyser.parser import parse_eml_to_dict
 from email_analyser.aggregator import analyse_email_content
 
-with open("./website/vectorizer.pkl", "rb") as f:
+with open(r"./ML Model/vectorizer.pkl", "rb") as f:
     vectorizer = pickle.load(f)
-with open("./website/m1_model.pkl", "rb") as f:
+with open(r"./ML Model/m1_model.pkl", "rb") as f:
     ml_model = pickle.load(f)
 
 email_store = {}  # global in-memory store
