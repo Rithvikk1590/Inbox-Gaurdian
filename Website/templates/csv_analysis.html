@@ -37,7 +37,8 @@
             <th>Subject</th>
             <th>Body</th>
             <th>Risk Score</th>
-            <th>Verdict</th>
+            <th>ML Verdict</th>
+            <th>Final Verdict</th>
           </tr>
         </thead>
         <tbody>
@@ -57,6 +58,15 @@
             </td>
             <td>
               <span class="badge
+                {% if r.ml_verdict in ['Phishing', 'Phishing Email'] %} bg-danger
+                {% elif r.ml_verdict == 'Suspicious' %} bg-warning text-dark
+                {% else %} bg-success
+                {% endif %}">
+                {{ r.ml_verdict }}
+              </span>
+            </td>
+            <td>
+              <span class="badge
                 {% if r.verdict in ['Phishing', 'Likely Phishing', 'Likely phishing'] %} bg-danger
                 {% elif r.verdict == 'Suspicious' %} bg-warning text-dark
                 {% else %} bg-success
@@ -64,6 +74,7 @@
                 {{ r.verdict }}
               </span>
             </td>
+
           </tr>
           {% endfor %}
           {% if not rows %}

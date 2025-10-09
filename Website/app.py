@@ -216,12 +216,21 @@ def upload_csv():
                 else:
                     verdict = "Likely Legitimate"
 
+            # ML Prediction
+            email_body = email_data.get("body", "")
+            if email_body:
+                body_tfidf = vectorizer.transform([email_body])
+                mlmodel_verdict = ml_model.predict(body_tfidf)[0]
+            else:
+                ml_verdict = "N/A"
+
             table_rows.append({
                 "sender": email_data.get("sender", ""),
                 "subject": email_data.get("subject", ""),
                 "body": email_data.get("body", ""),
                 "risk_score": total_points,
                 "verdict": verdict,
+                "ml_verdict": mlmodel_verdict
             })
 
         return render_template("csv_analysis.html", rows=table_rows)
