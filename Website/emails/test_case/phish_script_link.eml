@@ -1,0 +1,26 @@
+From: security@secure-check.com
+To: victim@example.com
+Subject: Verify your account now
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="----=_Part_123456_ABC"
+
+This is a multipart message in MIME format.
+
+------=_Part_123456_ABC
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+Dear customer,
+
+Your account requires verification. Click the link below and follow the instructions immediately:
+
+http://malicious.example.com/verify
+
+Best regards.
+------=_Part_123456_ABC
+Content-Type: application/javascript; name="payload.js"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="payload.js"
+
+VGhpcyBpcyBhIGhhcmxlc3MgZHVtbXkgZmlsZS4=
+------=_Part_123456_ABC--

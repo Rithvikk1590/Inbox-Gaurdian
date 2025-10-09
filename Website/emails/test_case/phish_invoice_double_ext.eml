@@ -1,0 +1,24 @@
+From: billing@fakecompany.com
+To: victim@example.com
+Subject: Invoice Attached - Please check
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="----=_Part_123456_ABC"
+
+This is a multipart message in MIME format.
+
+------=_Part_123456_ABC
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+Hello,
+
+Please find the attached invoice and remit payment immediately. Open the attached file for details.
+
+Thanks.
+------=_Part_123456_ABC
+Content-Type: application/octet-stream; name="invoice.pdf.exe"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="invoice.pdf.exe"
+
+VGhpcyBpcyBhIGhhcmxlc3MgZHVtbXkgZmlsZS4=
+------=_Part_123456_ABC--

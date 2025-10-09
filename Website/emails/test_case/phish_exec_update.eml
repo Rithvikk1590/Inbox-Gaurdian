@@ -1,0 +1,26 @@
+From: attacker@example.com
+To: victim@example.com
+Subject: Urgent Security Update
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="----=_Part_123456_ABC"
+
+This is a multipart message in MIME format.
+
+------=_Part_123456_ABC
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+Dear user,
+
+Please download and run the attached security update immediately to avoid account suspension.
+
+Regards,
+IT Support
+
+------=_Part_123456_ABC
+Content-Type: application/octet-stream; name="update.exe"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="update.exe"
+
+VGhpcyBpcyBhIGhhcmxlc3MgZHVtbXkgZmlsZS4=
+------=_Part_123456_ABC--
