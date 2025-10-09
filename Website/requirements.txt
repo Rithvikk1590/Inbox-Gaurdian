@@ -4,3 +4,4 @@ textblob
 python-whois
 scikit-learn
 numpy
+nltk
