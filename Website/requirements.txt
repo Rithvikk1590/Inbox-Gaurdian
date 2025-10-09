@@ -3,3 +3,4 @@ pandas
 textblob
 python-whois
 scikit-learn
+numpy
