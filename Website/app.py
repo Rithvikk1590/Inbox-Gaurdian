@@ -29,52 +29,53 @@ def risk_verdict(points: int) -> str:
 
 # Map a CSV row to the dict shape expected by analyse_email_content()
 def _row_to_email_data(row: dict) -> dict:
-    # Normalize keys: lowercase + strip spaces
-    normalized = {str(k).strip().lower(): v for k, v in row.items()}
-
-    # Common variants for sender
-    sender = (
-        normalized.get("from")
-        or normalized.get("sender")
-        or normalized.get("email from")
-        or normalized.get("email")
-        or normalized.get("from address")
-        or ""
-    )
-
-    # Common variants for subject
-    subject = (
-        normalized.get("subject")
-        or normalized.get("title")
-        or normalized.get("email subject")
-        or ""
-    )
-
-    # Common variants for body
-    body = (
-        normalized.get("body")
-        or normalized.get("message")
-        or normalized.get("content")
-        or normalized.get("email body")
-        or ""
-    )
-
-    # Attachments
-    attachments = (
-        normalized.get("attachments")
-        or normalized.get("files")
-        or ""
-    )
-    att_list = []
-    if isinstance(attachments, str) and attachments.strip():
+    def clean_str(val):
+        if pd.isna(val):
+            return ""
+        val = str(val).strip()
+        if val.lower() in ["nan", "none", "null"]:
+            return ""
         import re
+        val = re.sub(r"\s+", " ", val)
+        return val
+
+    # 🔹 Lowercase keys once
+    lower_row = {k.lower(): v for k, v in row.items()}
+
+    sender = clean_str(
+        lower_row.get("from") or
+        lower_row.get("sender") or
+        lower_row.get("email from") or
+        lower_row.get("email") or
+        ""
+    )
+    subject = clean_str(
+        lower_row.get("subject") or
+        lower_row.get("title") or
+        ""
+    )
+    body = clean_str(
+        lower_row.get("body") or
+        lower_row.get("message") or
+        lower_row.get("content") or
+        ""
+    )
+    attachments = clean_str(lower_row.get("attachments") or "")
+
+    # Validate sender
+    if "@" not in sender and sender != "":
+        sender = ""
+
+    # Split attachments
+    att_list = []
+    if attachments:
         parts = re.split(r"[,\|;]+", attachments)
         att_list = [p.strip() for p in parts if p.strip()]
 
     return {
-        "sender": sender.strip(),
-        "subject": subject.strip(),
-        "body": body.strip(),
+        "sender": sender.lower(),  # force lowercase for whitelist checks
+        "subject": subject,
+        "body": body,
         "attachments": att_list,
     }
 
@@ -172,82 +173,7 @@ def manual_analysis():
 
     return render_template("analysis.html", email=email_data, analysis=analysis, email_id="manual", ml_output=ml_output)
 
-# @app.route("/upload_csv", methods=["POST"])
-# def upload_csv():
-#     try:
-#         f = request.files.get("csv_file")
-#         if not f or not f.filename.lower().endswith(".csv"):
-#             return render_template("index.html", error="Please upload a valid CSV file.")
 
-#         # Read + clean
-#         df = pd.read_csv(f, skipinitialspace=True)
-#         df = clean_csv_dataframe(df)
-
-#         # Analyse with simple rules (adds Flags column + summary)
-#         df, detection_results = analyse_csv(df)
-
-#         # --- Styling: force white everywhere, then override Flags column ---
-#         def style_flags(val):
-#             if isinstance(val, str):
-#                 if "Suspicious Subject" in val or "Suspicious keywords in subject" in val:
-#                     return "background-color: #ffeeba; color: #000 !important;"  # yellow
-#                 if "Bad Attachment" in val or "Executable file" in val or "Suspicious document file" in val:
-#                     return "background-color: #f5c6cb; color: #000 !important;"  # red
-#                 if "Bad Sender" in val or "Unknown Sender" in val:
-#                     return "background-color: #bee5eb; color: #000 !important;"  # blue
-#                 if "Spam Row" in val:
-#                     return "background-color: #d4edda; color: #000 !important;"  # green
-#             return "color: #fff !important;"
-
-#         def style_risk_points(val):
-#             try:
-#                 val = int(val)
-#                 if val == 0:
-#                     return "background-color: #28a745; color: #fff;"  # green safe
-#                 elif val < 30:
-#                     return "background-color: #ffc107; color: #000;"  # yellow medium
-#                 elif val < 70:
-#                     return "background-color: #fd7e14; color: #fff;"  # orange high
-#                 else:
-#                     return "background-color: #dc3545; color: #fff;"  # red critical
-#             except:
-#                 return ""
-            
-#         styled = (
-#             df.style
-#               .set_properties(**{"color": "#fff"})
-#               .set_table_styles([
-#                   {"selector": "th", "props": [("color", "#fff")]},
-#                   {"selector": "td", "props": [("color", "#fff")]},
-#               ])
-#         )
-
-#         styled = styled.applymap(style_flags, subset=["Flags"])
-#         styled = styled.applymap(style_risk_points, subset=["Risk Points"])
-
-#         # Override just the Flags column (after global white)
-#         styled = styled.applymap(style_flags, subset=["Flags"])
-
-#         # Hide Pandas index column if not needed
-#         try:
-#             styled = styled.hide(axis="index")   # pandas >= 1.4
-#         except Exception:
-#             styled = styled.hide_index()         # older pandas
-
-#         # Convert to HTML
-#         table_html = styled.to_html()
-
-#         # Render with both cleaned table + analysis results
-#         return render_template(
-#             "index.html",
-#             csv_table=table_html,
-#             csv_analysis=detection_results,
-#             total_risk=detection_results.get("total_risk", 0)
-#         )
-
-#     except Exception as e:
-#         print("Error in CSV upload:", e)
-#         return render_template("index.html", error="Error processing CSV file.")
 
 @app.route("/upload_csv", methods=["POST"])
 def upload_csv():
@@ -256,22 +182,31 @@ def upload_csv():
         if not f or not f.filename.lower().endswith(".csv"):
             return render_template("index.html", error="Please upload a valid CSV file.")
 
-        # Read & basic clean (keep your existing clean_csv_dataframe if you have it)
+        # --- Read + clean dataframe ---
         df = pd.read_csv(f, skipinitialspace=True)
+
+        # Drop auto index column if present
         if "Unnamed: 0" in df.columns:
             df = df.drop(columns=["Unnamed: 0"])
+
+        # Replace NaN with "" for consistency
         df = df.fillna("")
 
-        # Build rows for table: Sender | Subject | Body | Risk Score | Verdict
+        # 🔹 Drop rows where ALL values are empty/whitespace
+        df = df.loc[~(df.astype(str).apply(lambda x: x.str.strip()).eq("")).all(axis=1)]
+
+        # --- Build rows for table ---
         table_rows = []
         for _, row in df.iterrows():
             email_data = _row_to_email_data(row.to_dict())
-            analysis = analyse_email_content(email_data)  # <- USES email_analyser
 
+            # 🔹 Skip rows that are totally blank after cleaning
+            if not (email_data["sender"] or email_data["subject"] or email_data["body"] or email_data["attachments"]):
+                continue
+
+            analysis = analyse_email_content(email_data)  # <- uses email_analyser
             total_points = int(analysis.get("total_risk_points", 0))
 
-            # If your aggregator already sets a verdict, use it;
-            # otherwise derive a simple one here.
             verdict = analysis.get("verdict")
             if not verdict:
                 if total_points >= 60:
@@ -289,25 +224,12 @@ def upload_csv():
                 "verdict": verdict,
             })
 
-        # Render simple table view (no highlighting)
         return render_template("csv_analysis.html", rows=table_rows)
-
 
     except Exception as e:
         print("Error in upload_csv:", e)
         return render_template("index.html", error="Error processing CSV file.")
 
-# @app.route("/csv_analysis/<csv_id>")
-# def csv_analysis(csv_id):
-#     data = session.get(csv_id)
-#     if not data:
-#         return redirect(url_for("home"))
-
-#     df = pd.DataFrame(data["rows"], columns=data["columns"])
-
-#     # Render as a nice Bootstrap table
-#     table_html = df.to_html(classes="table table-striped table-bordered align-middle", index=False)
-#     return render_template("csv_analysis.html", table=table_html)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5050, host="0.0.0.0")
