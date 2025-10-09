@@ -45,10 +45,11 @@ def check_whitelist(email_data: dict) -> dict:
     if sender in trusted_senders or domain in trusted_domains:
         return True
     else:
-        risk += 15
+        points = 12
+        risk += points
         highlights.append({
             "text": sender,
-            "hover_message": f"Sender not in whitelist: +{risk}",
+            "hover_message": f"Sender not in whitelist: +{points}",
             "risk_level": "medium"
         })
         # checking of domain age with WHOIS information (newer domain age = more likely phishing sender)
