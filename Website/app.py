@@ -27,147 +27,167 @@ def risk_verdict(points: int) -> str:
         return "Suspicious"
     return "Safe"
 
-def analyse_csv(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
-    """
-    Clean + annotate the CSV with rule-based flags.
-    Returns (annotated DataFrame, summary dict).
-    """
-    results = {
-        "suspicious_subject_count": 0,
-        "suspicious_body_count": 0,
-        "suspicious_attachments": 0,
-        "bad_sender_emails": 0,
-        "spam_marked_rows": 0,
-        "total_rows": len(df)
+# Map a CSV row to the dict shape expected by analyse_email_content()
+def _row_to_email_data(row: dict) -> dict:
+    sender = row.get("From") or row.get("Sender") or row.get("Email From") or ""
+    subject = row.get("Subject") or row.get("Title") or ""
+    body = row.get("Body") or row.get("Message") or row.get("Content") or ""
+    attachments = row.get("Attachments") or ""
+
+    att_list = []
+    if isinstance(attachments, str) and attachments.strip():
+        # split common delimiters
+        import re
+        parts = re.split(r"[,\|;]+", attachments)
+        att_list = [p.strip() for p in parts if p.strip()]
+
+    return {
+        "sender": sender,
+        "subject": subject,
+        "body": body,
+        "attachments": att_list,
     }
 
-    flagged_rows = []
-    df["Risk Points"] = 0
+# def analyse_csv(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+#     """
+#     Clean + annotate the CSV with rule-based flags.
+#     Returns (annotated DataFrame, summary dict).
+#     """
+#     results = {
+#         "suspicious_subject_count": 0,
+#         "suspicious_body_count": 0,
+#         "suspicious_attachments": 0,
+#         "bad_sender_emails": 0,
+#         "spam_marked_rows": 0,
+#         "total_rows": len(df)
+#     }
 
-    # Suspicious keywords for matching
-    suspicious_keywords = ["urgent", "verify", "account", "password",
-                           "bank", "lottery", "win", "free", "click"]
+#     flagged_rows = []
+#     df["Risk Points"] = 0
 
-    # Suspicious file extensions
-    exec_extensions = [".exe", ".scr", ".js", ".bat", ".vbs"]
-    doc_extensions = [".docm", ".xlsm", ".pptm"]  # scripts can hide here
+#     # Suspicious keywords for matching
+#     suspicious_keywords = ["urgent", "verify", "account", "password",
+#                            "bank", "lottery", "win", "free", "click"]
 
-    for i, row in df.iterrows():
-        reasons = []
-        points = 0
+#     # Suspicious file extensions
+#     exec_extensions = [".exe", ".scr", ".js", ".bat", ".vbs"]
+#     doc_extensions = [".docm", ".xlsm", ".pptm"]  # scripts can hide here
 
-        # --- Whitelist Checker ---
-        if "From" in df.columns and pd.notna(row["From"]):
-            sender = row["From"].strip()
-            if "@" not in sender:
-                results["bad_sender_emails"] += 1
-                reasons.append("Unknown Sender")
-                points += 20
-            else:
-                if not sender.endswith("@sit.singaporetech.edu.sg"):
-                    reasons.append("Unknown Sender")
-                    points += 20
+#     for i, row in df.iterrows():
+#         reasons = []
+#         points = 0
 
-        # --- Keyword Detector: Subject ---
-        subject_hits = []
-        if "Subject" in df.columns and pd.notna(row["Subject"]):
-            subject = row["Subject"].lower()
-            for word in suspicious_keywords:
-                if word in subject:
-                    subject_hits.append(word)
-                    points += 15
-            if subject_hits:
-                results["suspicious_subject_count"] += 1
-                reasons.append(f"Suspicious keywords in subject: {', '.join(subject_hits)}")
-                points = min(points, 45)
+#         # --- Whitelist Checker ---
+#         if "From" in df.columns and pd.notna(row["From"]):
+#             sender = row["From"].strip()
+#             if "@" not in sender:
+#                 results["bad_sender_emails"] += 1
+#                 reasons.append("Unknown Sender")
+#                 points += 20
+#             else:
+#                 if not sender.endswith("@sit.singaporetech.edu.sg"):
+#                     reasons.append("Unknown Sender")
+#                     points += 20
 
-        # --- Keyword Detector: Body ---
-        body_hits = []
-        if "Body" in df.columns and pd.notna(row["Body"]):
-            body = row["Body"].lower()
-            for word in suspicious_keywords:
-                if word in body:
-                    body_hits.append(word)
-                    points += 5
-            if body_hits:
-                results["suspicious_body_count"] += 1
-                reasons.append(f"Suspicious keywords in body: {', '.join(body_hits)}")
-                points = min(points, 20)
+#         # --- Keyword Detector: Subject ---
+#         subject_hits = []
+#         if "Subject" in df.columns and pd.notna(row["Subject"]):
+#             subject = row["Subject"].lower()
+#             for word in suspicious_keywords:
+#                 if word in subject:
+#                     subject_hits.append(word)
+#                     points += 15
+#             if subject_hits:
+#                 results["suspicious_subject_count"] += 1
+#                 reasons.append(f"Suspicious keywords in subject: {', '.join(subject_hits)}")
+#                 points = min(points, 45)
 
-        # --- File Extension Detection ---
-        if "Attachments" in df.columns and pd.notna(row["Attachments"]):
-            attach = str(row["Attachments"]).lower()
-            if any(attach.endswith(ext) for ext in exec_extensions):
-                results["suspicious_attachments"] += 1
-                reasons.append("Executable file")
-                points += 50
-            elif any(attach.endswith(ext) for ext in doc_extensions):
-                results["suspicious_attachments"] += 1
-                reasons.append("Suspicious document file")
-                points += 30
+#         # --- Keyword Detector: Body ---
+#         body_hits = []
+#         if "Body" in df.columns and pd.notna(row["Body"]):
+#             body = row["Body"].lower()
+#             for word in suspicious_keywords:
+#                 if word in body:
+#                     body_hits.append(word)
+#                     points += 5
+#             if body_hits:
+#                 results["suspicious_body_count"] += 1
+#                 reasons.append(f"Suspicious keywords in body: {', '.join(body_hits)}")
+#                 points = min(points, 20)
 
-        # --- Spam flag ---
-        if "is_spam" in df.columns and row["is_spam"] == 1:
-            results["spam_marked_rows"] += 1
-            reasons.append("Spam Row")
-            points += 20
+#         # --- File Extension Detection ---
+#         if "Attachments" in df.columns and pd.notna(row["Attachments"]):
+#             attach = str(row["Attachments"]).lower()
+#             if any(attach.endswith(ext) for ext in exec_extensions):
+#                 results["suspicious_attachments"] += 1
+#                 reasons.append("Executable file")
+#                 points += 50
+#             elif any(attach.endswith(ext) for ext in doc_extensions):
+#                 results["suspicious_attachments"] += 1
+#                 reasons.append("Suspicious document file")
+#                 points += 30
 
-        # Save flags + points
-        if reasons:
-            flagged_rows.append((i, reasons))
-        df.at[i, "Risk Points"] = points
+#         # --- Spam flag ---
+#         if "is_spam" in df.columns and row["is_spam"] == 1:
+#             results["spam_marked_rows"] += 1
+#             reasons.append("Spam Row")
+#             points += 20
 
-    # Add Flags column with reasons
-    df["Flags"] = ""
-    for idx, reasons in flagged_rows:
-        df.at[idx, "Flags"] = ", ".join(reasons)
-    total_risk = int(df["Risk Points"].sum())
-    results["total_risk"] = total_risk
+#         # Save flags + points
+#         if reasons:
+#             flagged_rows.append((i, reasons))
+#         df.at[i, "Risk Points"] = points
 
-    return df, results
+#     # Add Flags column with reasons
+#     df["Flags"] = ""
+#     for idx, reasons in flagged_rows:
+#         df.at[idx, "Flags"] = ", ".join(reasons)
+#     total_risk = int(df["Risk Points"].sum())
+#     results["total_risk"] = total_risk
 
+#     return df, results
 
-def clean_csv_dataframe(df: pd.DataFrame) -> pd.DataFrame:
-    # 1) Standardize column names
-    df.columns = [re.sub(r'\s+', ' ', c).strip() for c in df.columns]
+# def clean_csv_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+#     # 1) Standardize column names
+#     df.columns = [re.sub(r'\s+', ' ', c).strip() for c in df.columns]
 
-    # 2) Normalize string cells: strip + collapse internal whitespace
-    def _clean_str(x):
-        x = re.sub(r'\s+', ' ', x)  # collapse runs of spaces/tabs/newlines
-        return x.strip()
+#     # 2) Normalize string cells: strip + collapse internal whitespace
+#     def _clean_str(x):
+#         x = re.sub(r'\s+', ' ', x)  # collapse runs of spaces/tabs/newlines
+#         return x.strip()
 
-    for col in df.columns:
-        if df[col].dtype == object:
-            df[col] = df[col].astype(str).apply(_clean_str).replace({'': pd.NA, 'nan': pd.NA})
+#     for col in df.columns:
+#         if df[col].dtype == object:
+#             df[col] = df[col].astype(str).apply(_clean_str).replace({'': pd.NA, 'nan': pd.NA})
 
-    # 3) Treat whitespace-only as missing, then drop all-empty rows/cols
-    df.replace(r'^\s*$', pd.NA, regex=True, inplace=True)
-    df.dropna(how='all', inplace=True)
-    df.dropna(how='all', axis=1, inplace=True)
+#     # 3) Treat whitespace-only as missing, then drop all-empty rows/cols
+#     df.replace(r'^\s*$', pd.NA, regex=True, inplace=True)
+#     df.dropna(how='all', inplace=True)
+#     df.dropna(how='all', axis=1, inplace=True)
 
-    # 4) Type fixes (optional but nice)
-    if 'Age' in df.columns:
-        df['Age'] = pd.to_numeric(df['Age'], errors='coerce').astype('Int64')
+#     # 4) Type fixes (optional but nice)
+#     if 'Age' in df.columns:
+#         df['Age'] = pd.to_numeric(df['Age'], errors='coerce').astype('Int64')
 
-    if 'Email' in df.columns:
-        df['Email'] = df['Email'].str.lower()
-        # mark invalid emails as missing (optional)
-        valid = df['Email'].str.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', na=False)
-        df.loc[~valid, 'Email'] = pd.NA
+#     if 'Email' in df.columns:
+#         df['Email'] = df['Email'].str.lower()
+#         # mark invalid emails as missing (optional)
+#         valid = df['Email'].str.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', na=False)
+#         df.loc[~valid, 'Email'] = pd.NA
 
-    # 5) Business-rule filtering (tune as you like)
-    key_cols = [c for c in ['Name', 'Email'] if c in df.columns]
-    if key_cols:
-        # drop rows that are missing BOTH Name and Email
-        df.dropna(subset=key_cols, how='all', inplace=True)
+#     # 5) Business-rule filtering (tune as you like)
+#     key_cols = [c for c in ['Name', 'Email'] if c in df.columns]
+#     if key_cols:
+#         # drop rows that are missing BOTH Name and Email
+#         df.dropna(subset=key_cols, how='all', inplace=True)
 
-    # 6) Remove duplicates (prefer keys if present)
-    if key_cols:
-        df.drop_duplicates(subset=key_cols, inplace=True)
-    else:
-        df.drop_duplicates(inplace=True)
+#     # 6) Remove duplicates (prefer keys if present)
+#     if key_cols:
+#         df.drop_duplicates(subset=key_cols, inplace=True)
+#     else:
+#         df.drop_duplicates(inplace=True)
 
-    return df
+#     return df
 
 
 @app.route("/")
@@ -270,76 +290,49 @@ def upload_csv():
         if not f or not f.filename.lower().endswith(".csv"):
             return render_template("index.html", error="Please upload a valid CSV file.")
 
-        # Read + clean
+        # Read & basic clean (keep your existing clean_csv_dataframe if you have it)
         df = pd.read_csv(f, skipinitialspace=True)
-        df = clean_csv_dataframe(df)
+        if "Unnamed: 0" in df.columns:
+            df = df.drop(columns=["Unnamed: 0"])
+        df = df.fillna("")
 
-        # Analyse with simple rules (adds Flags column + summary)
-        df, detection_results = analyse_csv(df)
+        # Build rows for table: Sender | Subject | Body | Risk Score | Verdict
+        table_rows = []
+        for _, row in df.iterrows():
+            email_data = _row_to_email_data(row.to_dict())
+            analysis = analyse_email_content(email_data)  # <- USES email_analyser
 
-        # --- Styling: force white everywhere, then override Flags column ---
-        def style_flags(val):
-            if isinstance(val, str):
-                if "Suspicious Subject" in val or "Suspicious keywords in subject" in val:
-                    return "background-color: #ffeeba; color: #000 !important;"  # yellow
-                if "Bad Attachment" in val or "Executable file" in val or "Suspicious document file" in val:
-                    return "background-color: #f5c6cb; color: #000 !important;"  # red
-                if "Bad Sender" in val or "Unknown Sender" in val:
-                    return "background-color: #bee5eb; color: #000 !important;"  # blue
-                if "Spam Row" in val:
-                    return "background-color: #d4edda; color: #000 !important;"  # green
-            return "color: #fff !important;"
+            total_points = int(analysis.get("total_risk_points", 0))
 
-        def style_risk_points(val):
-            try:
-                val = int(val)
-                if val == 0:
-                    return "background-color: #28a745; color: #fff;"  # green safe
-                elif val < 30:
-                    return "background-color: #ffc107; color: #000;"  # yellow medium
-                elif val < 70:
-                    return "background-color: #fd7e14; color: #fff;"  # orange high
+            # If your aggregator already sets a verdict, use it;
+            # otherwise derive a simple one here.
+            verdict = analysis.get("verdict")
+            if not verdict:
+                if total_points >= 60:
+                    verdict = "Likely Phishing"
+                elif total_points >= 25:
+                    verdict = "Suspicious"
                 else:
-                    return "background-color: #dc3545; color: #fff;"  # red critical
-            except:
-                return ""
-            
-        styled = (
-            df.style
-              .set_properties(**{"color": "#fff"})
-              .set_table_styles([
-                  {"selector": "th", "props": [("color", "#fff")]},
-                  {"selector": "td", "props": [("color", "#fff")]},
-              ])
-        )
+                    verdict = "Likely Legitimate"
 
-        styled = styled.applymap(style_flags, subset=["Flags"])
-        styled = styled.applymap(style_risk_points, subset=["Risk Points"])
+            table_rows.append({
+                "sender": email_data.get("sender", ""),
+                "subject": email_data.get("subject", ""),
+                "body": email_data.get("body", ""),
+                "risk_score": total_points,
+                "verdict": verdict,
+            })
 
-        # Override just the Flags column (after global white)
-        styled = styled.applymap(style_flags, subset=["Flags"])
+        # Render simple table view (no highlighting)
+        return render_template("csv_analysis.html", rows=table_rows)
 
-        # Hide Pandas index column if not needed
-        try:
-            styled = styled.hide(axis="index")   # pandas >= 1.4
-        except Exception:
-            styled = styled.hide_index()         # older pandas
-
-        # Convert to HTML
-        table_html = styled.to_html()
-
-        # Render with both cleaned table + analysis results
-        return render_template(
-            "index.html",
-            csv_table=table_html,
-            csv_analysis=detection_results,
-            total_risk=detection_results.get("total_risk", 0)
-        )
 
     except Exception as e:
-        print("Error in CSV upload:", e)
+        print("Error in upload_csv:", e)
         return render_template("index.html", error="Error processing CSV file.")
-    
+
+
+
 @app.route("/csv_analysis/<csv_id>")
 def csv_analysis(csv_id):
     data = session.get(csv_id)

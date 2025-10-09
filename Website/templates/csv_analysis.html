@@ -1,128 +1,76 @@
-{% extends "index.html" %}
-{% block content %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>CSV Analysis - Inbox Guardian</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #0d1117;
-            color: #e6edf3;
-            margin: 20px;
-        }
-
-        h2 {
-            color: #58a6ff;
-            margin-bottom: 15px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        th, td {
-            padding: 10px 14px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #161b22;
-            color: #c9d1d9;
-            font-weight: bold;
-        }
-
-        tr:nth-child(even) {
-            background-color: #1e2329;
-        }
-
-        tr:nth-child(odd) {
-            background-color: #0d1117;
-        }
-
-        td {
-            border-bottom: 1px solid #30363d;
-        }
-
-        /* Flags styling */
-        .flags {
-            font-weight: bold;
-            border-radius: 6px;
-            padding: 4px 8px;
-        }
-        .flags.safe {
-            background-color: #004d00;
-            color: #a8ffb0;
-        }
-        .flags.warning {
-            background-color: #8b0000;
-            color: #ffd6d6;
-        }
-
-        /* Collapsible body */
-        details {
-            cursor: pointer;
-        }
-        summary {
-            color: #58a6ff;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CSV Analysis — Inbox Guardian</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    pre {
+      line-height: 1.25;
+      font-size: 1rem;
+      margin: 0;
+    }
+  </style>
 </head>
 <body>
-    <h2>📑 Cleaned CSV Data</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Message ID</th>
-                <th>Date</th>
-                <th>From</th>
-                <th>To</th>
-                <th>Bcc</th>
-                <th>Subject</th>
-                <th>Body</th>
-                <th>Folder</th>
-                <th>Attachments</th>
-                <th>Spam?</th>
-                <th>Thread</th>
-                <th>Flags</th>
-            </tr>
+  {% include 'includes/navbar.html' %}
+
+  <!-- Header -->
+  <section class="hero text-center py-3">
+    <div class="d-flex justify-content-center align-items-center gap-3 mb-2">
+      <div class="badge-box px-4 py-2 bg-white text-dark border rounded-2 shadow-sm">
+        <strong>CSV Analysis Results</strong>
+      </div>
+    </div>
+    <p class="text-secondary mb-0">Simple summary table of analysed CSV entries.</p>
+  </section>
+
+  <!-- Table Section -->
+  <section class="container my-3">
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>Sender</th>
+            <th>Subject</th>
+            <th>Body</th>
+            <th>Risk Score</th>
+            <th>Verdict</th>
+          </tr>
         </thead>
         <tbody>
-            {% for row in rows %}
-            <tr>
-                <td>{{ row['Message-ID'] }}</td>
-                <td>{{ row['Date'] }}</td>
-                <td>{{ row['From'] }}</td>
-                <td>{{ row['To'] }}</td>
-                <td>{{ row['Bcc'] }}</td>
-                <td>{{ row['Subject'] }}</td>
-                <td>
-                    <details>
-                        <summary>View Body</summary>
-                        <p>{{ row['Body'] }}</p>
-                    </details>
-                </td>
-                <td>{{ row['Folder'] }}</td>
-                <td>{{ row['Attachments'] }}</td>
-                <td>{{ row['is_spam'] }}</td>
-                <td>{{ row['thread_id'] }}</td>
-                <td>
-                    {% if 'Suspicious' in row['Flags'] or 'Bad' in row['Flags'] %}
-                        <span class="flags warning">{{ row['Flags'] }}</span>
-                    {% else %}
-                        <span class="flags safe">{{ row['Flags'] }}</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
+          {% for r in rows %}
+          <tr>
+            <td class="text-break" style="max-width: 240px;">{{ r.sender }}</td>
+            <td class="text-break" style="max-width: 280px;">{{ r.subject }}</td>
+            <td class="text-break" style="max-width: 520px; white-space: pre-wrap;">{{ r.body }}</td>
+            <td>
+              <span class="badge
+                {% if r.risk_score >= 60 %} bg-danger
+                {% elif r.risk_score >= 25 %} bg-warning text-dark
+                {% else %} bg-success
+                {% endif %}">
+                {{ r.risk_score }}
+              </span>
+            </td>
+            <td>
+              <span class="badge
+                {% if r.verdict in ['Phishing', 'Likely Phishing', 'Likely phishing'] %} bg-danger
+                {% elif r.verdict == 'Suspicious' %} bg-warning text-dark
+                {% else %} bg-success
+                {% endif %}">
+                {{ r.verdict }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+          {% if not rows %}
+          <tr><td colspan="5" class="text-center text-secondary">No rows to display.</td></tr>
+          {% endif %}
         </tbody>
-    </table>
+      </table>
+    </div>
 </body>
 </html>
-{% endblock %}

@@ -18,7 +18,7 @@ def analyse_urls(email_data):
 
         # IP address detection
         if re.match(r'https?://(\d{1,3}\.){3}\d{1,3}', url_lower):
-            risk += 30
+            risk += 15
             detected_risks.append("URL uses an IP address. Risk +30.")
             highlights.append({
                 "text": url,
@@ -29,7 +29,7 @@ def analyse_urls(email_data):
 
         # URL shortener detection (unchanged logic, now reads from separate file)
         if any(shortener in url_lower for shortener in url_shorteners):
-            risk += 25
+            risk += 15
             detected_risks.append("Shortened URL detected. Risk +25.")
             highlights.append({
                 "text": url,
