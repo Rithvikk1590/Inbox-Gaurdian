@@ -1,6 +1,5 @@
 from .whitelist_checker import check_whitelist
 from .keyword_detector import detect_keywords
-from .position_scorer import score_positions
 from .edit_distance import check_edit_distance
 from .url_analyser import analyse_urls
 from .attachment_rules import check_attachment_extensions
@@ -36,8 +35,7 @@ def analyse_email_content(email_data: dict) -> dict:
 
     # ✅ Step 2: normal analysis flow
     modules = [
-        detect_keywords,
-        score_positions,
+        detect_keywords, #keyword_detector + position scorer
         check_edit_distance,
         analyse_urls,
         check_attachment_extensions,

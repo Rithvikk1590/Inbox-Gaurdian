@@ -2,6 +2,22 @@ import re
 from textblob import TextBlob
 import os
 import numpy as np
+import spacy
+
+nlp = spacy.load("en_core_web_sm")
+
+def position_scorer(email_text, keywords, high_threshold):
+    doc = nlp(email_text)
+    early_positions = []
+    for token in doc:
+        clean = token.text.lower().strip(".,!?;:\"'()[]")
+        if clean in keywords and keywords[clean] >= high_threshold:
+            early_positions.append(token.i / len(doc))
+    
+    if not early_positions:
+        return 0.0  # no high-risk words found
+    
+    return 1 - min(early_positions)  # 1.0 = very first word
 
 def detect_keywords(email_data: dict) -> dict:
     keywords = {}
@@ -34,6 +50,18 @@ def detect_keywords(email_data: dict) -> dict:
     highlighted_words = set()  # track which words already highlighted
     total_risk = 0
 
+    lines = body.splitlines()
+    if lines:
+        first = lines[0]
+        if "http://" in first or "https://" in first:
+            points = 2
+            risk += points
+            highlights.append({
+                "text": first.strip(),
+                "hover_message": f"Link appears immediately in email: +{points}",
+                "risk_level": "medium"
+            })
+
     match_count = 0 
     for word, freq_score in keywords.items():
         pattern = r"\b" + re.escape(word) + r"\b" # word boundaries to avoid partial matches
@@ -52,6 +80,18 @@ def detect_keywords(email_data: dict) -> dict:
                 highlighted_words.add(word) # no double injection of highlighted words
             total_risk += points 
             match_count += 1
+
+    if body.strip() and keywords:
+        avg_pos = position_scorer(body, keywords, high_threshold)
+        print('pos', avg_pos)
+        if avg_pos > 0.7:  # i.e., earliest high-risk word in first 30% of email
+            bonus = 5
+            total_risk += bonus
+            highlights.append({
+                "text": "Keyword placement",
+                "hover_message": f"Suspicious words found early (avg_pos={avg_pos:.2f}) → +{bonus}",
+                "risk_level": "medium"
+            })
 
     print(f"Total risk: {total_risk}")
     print("Highlights:", highlights)
