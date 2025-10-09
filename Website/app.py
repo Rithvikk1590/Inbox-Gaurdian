@@ -49,8 +49,10 @@ def analyse_csv(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
                            "bank", "lottery", "win", "free", "click"]
 
     # Suspicious file extensions
-    exec_extensions = [".exe", ".scr", ".js", ".bat", ".vbs"]
-    doc_extensions = [".docm", ".xlsm", ".pptm"]  # scripts can hide here
+    exec_extensions = [".exe", ".chm", ".pif", ".reg", ".scr", ".sct", ".hlp", ".shs", ".shb",
+                       ".msi", ".msp", ".msc", ".class", ".com", ".dll", ".dmg", ".drv", ".grp",
+                       ".ocx", ".ovl", ".sys", ".vdl", ".vxd"]
+    doc_extensions = [".doc", ".xlsm", ".pptm"]  # scripts can hide here
 
     for i, row in df.iterrows():
         reasons = []

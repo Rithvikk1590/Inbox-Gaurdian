@@ -32,7 +32,7 @@ def _double_extension_score(name: str) -> int:
             ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx",
             ".txt", ".jpg", ".jpeg", ".png"
         }:
-            return 60
+            return 30
     return 0
 
 def check_attachment_extensions(email_data: dict) -> dict:
