@@ -35,7 +35,7 @@ def analyse_email_content(email_data: dict) -> dict:
 
     # ✅ Step 2: normal analysis flow
     modules = [
-        detect_keywords, #keyword_detector + position scorer
+        #detect_keywords, #keyword_detector + position scorer
         check_edit_distance,
         analyse_urls,
         check_attachment_extensions,
