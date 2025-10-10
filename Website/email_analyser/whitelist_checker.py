@@ -40,7 +40,7 @@ def check_whitelist(email_data: dict) -> dict:
 
     # check with pre-defined whitelist.json
     trusted_senders = [s.lower() for s in WHITELIST["trusted_senders"]]
-    trusted_domains = [d.lower() for d in WHITELIST["trusted_senders"]]
+    trusted_domains = [d.lower() for d in WHITELIST["trusted_domains"]]
 
     if sender in trusted_senders or domain in trusted_domains:
         return True
