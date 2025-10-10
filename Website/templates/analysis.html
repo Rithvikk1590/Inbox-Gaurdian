@@ -72,11 +72,12 @@
 
   <!-- Body -->
   <section class="container my-3">
-    <div class="card-header bg-dark text-white p-2">
-      <h5 class="mb-0 text-white fw-semibold">Email</h5>
-    </div>
-    <pre id="email-body" class="bg-body-tertiary text-dark p-2 m-0 rounded-0 border-0">{{ email.body | trim }}</pre>
-  </section>
+  <div class="card-header bg-dark text-white p-2 d-flex justify-content-between align-items-center">
+    <h5 class="mb-0 text-white fw-semibold">Email</h5>
+    <div id="placement-info-container" class="placement-badges"></div>
+  </div>
+  <pre id="email-body" class="bg-body-tertiary text-dark p-2 m-0 rounded-0 border-0">{{ email.body | trim }}</pre>
+</section>
 
   <!-- Attachments -->
   <section class="container my-3">
@@ -146,10 +147,14 @@
       if (!h || !h.text) continue;
       const key = `${h.section || 'any'}|${String(h.text).toLowerCase()}`;
       if (!mergedMap.has(key)) {
-        mergedMap.set(key, { text: h.text, section: h.section || 'any', risk_level: h.risk_level || 'medium', messages: [] });
+        mergedMap.set(key, { 
+          text: h.text.trim(), 
+          section: h.section || 'any', 
+          risk_level: h.risk_level || 'medium', 
+          messages: [] });
       }
       const msg = h.hover_message || h.message || h.reason || h.label || 'Flagged item';
-      mergedMap.get(key).messages.push(msg);
+      if (msg) mergedMap.get(key).messages.push(msg);
     }
     const merged = Array.from(mergedMap.values());
 
@@ -160,7 +165,7 @@
         const tooltip = escHtml(h.messages.filter(Boolean).join('&#10;• '));
 
         // assign colour by risk level
-        let color = "#ffff00"; // default yellow
+        let color = "#fff"; // default white
         if (h.risk_level === "high") color = "#ff4d4d";      // red
         else if (h.risk_level === "medium") color = "#ffcc00"; // amber
         else if (h.risk_level === "low") color = "#7CFC00";    // green
@@ -181,6 +186,25 @@
       el.addEventListener('mousemove', positionTooltip);
       el.addEventListener('mouseout', hideTooltip);
     });
+
+    const container = document.getElementById('placement-info-container');
+    if (container) {
+      container.innerHTML = ''; // or use remove() on children for better perf if needed
+
+      // Filter all placement highlights
+      const placementHighlights = highlights.filter(h => h.placement_info);
+
+      // Create a badge for each
+      placementHighlights.forEach(highlight => {
+        const badge = document.createElement('div');
+        badge.className = 'placement-badge';
+        badge.textContent = highlight.hover_message;
+        container.appendChild(badge);
+      });
+
+      // Optional: hide container if no badges
+      container.style.display = placementHighlights.length ? 'flex' : 'none';
+    }
     });
 
     function showTooltip(event, text, bgColor) {

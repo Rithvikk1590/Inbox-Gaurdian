@@ -49,13 +49,26 @@ def detect_keywords(email_data: dict) -> dict:
     highlights = []
     highlighted_words = set()  # track which words already highlighted
     total_risk = 0
+    keywords_risk = 0
 
+    # extract URL 
+    url_pattern = re.compile(r'https?://[^\s<>"{}|\\^`\[\]]+')
+    url_spans = []
+    for match in url_pattern.finditer(body):
+        url_spans.append((match.start(), match.end()))
+
+    def is_inside_any_url(start, end):
+        for u_start, u_end in url_spans:
+            if start >= u_start and end <= u_end:
+                return True
+        return False
+    
     lines = body.splitlines()
     if lines:
         first = lines[0]
         if "http://" in first or "https://" in first:
             points = 2
-            risk += points
+            total_risk += points
             highlights.append({
                 "text": first.strip(),
                 "hover_message": f"Link appears immediately in email: +{points}",
@@ -66,6 +79,9 @@ def detect_keywords(email_data: dict) -> dict:
     for word, freq_score in keywords.items():
         pattern = r"\b" + re.escape(word) + r"\b" # word boundaries to avoid partial matches
         for match in re.finditer(pattern, body, re.IGNORECASE):
+            start, end = match.span()
+            if is_inside_any_url(start, end):
+                continue # skip if sus words in URL
             if word not in highlighted_words:
                 matched_text = match.group(0)
                 if freq_score >= high_threshold:
@@ -74,12 +90,18 @@ def detect_keywords(email_data: dict) -> dict:
                     level, points = "medium", 5
                 highlights.append({
                     "text": matched_text,
-                    "hover_message": f"Suspicious keyword: +{points}",
+                    "hover_message": f"Suspicious keyword",
                     "risk_level": level
                 })
                 highlighted_words.add(word) # no double injection of highlighted words
             total_risk += points 
+            keywords_risk += points
             match_count += 1
+    highlights.append({
+        "text": "Suspicious Keywords",
+        "hover_message": f"Keyword Detector +{keywords_risk}",
+        "placement_info": True 
+    })
 
     if body.strip() and keywords:
         avg_pos = position_scorer(body, keywords, high_threshold)
@@ -89,13 +111,16 @@ def detect_keywords(email_data: dict) -> dict:
             total_risk += bonus
             highlights.append({
                 "text": "Keyword placement",
-                "hover_message": f"Suspicious words found early (avg_pos={avg_pos:.2f}) → +{bonus}",
-                "risk_level": "medium"
+                "hover_message": f"Suspicious words found early +{bonus}",
+                # "risk_level": "medium",
+                "placement_info": True  # <-- add this flag
             })
 
     print(f"Total risk: {total_risk}")
     print("Highlights:", highlights)
     print(f"Total matches contributing to risk: {match_count}")
+    print('url',url_spans)
+    print(url_pattern)
 
     if body.strip():
         # clean possible html for better analysis
@@ -114,8 +139,9 @@ def detect_keywords(email_data: dict) -> dict:
                     points = 10
                     highlights.append({
                         "text": "Urgent tone",
-                        "hover_message": f"Fear/urgency detected (polarity={polarity:.2f}) → {points}",
-                        "risk_level": "high"
+                        "hover_message": f"Fear/urgency detected +{points}",
+                        "risk_level": "high",
+                        "placement_info": True  # <-- add this flag
                     })
                     total_risk += 8
                 # high positive polarity = overly scammy/pleasing
@@ -123,8 +149,9 @@ def detect_keywords(email_data: dict) -> dict:
                     points = 5
                     highlights.append({
                         "text": "Overly positive tone",
-                        "hover_message": f"Scam-like positivity (polarity={polarity:.2f}) → {points}",
-                        "risk_level": "high"
+                        "hover_message": f"Scam-like positivity +{points}",
+                        "risk_level": "high",
+                        "placement_info": True  # <-- add this flag
                     })
                     total_risk += 6
 
@@ -133,8 +160,9 @@ def detect_keywords(email_data: dict) -> dict:
                     points = 5
                     highlights.append({
                         "text": "Manipulative language",
-                        "hover_message": f"Highly subjective (subjectivity={subjectivity:.2f}) → {points}",
-                        "risk_level": "medium"
+                        "hover_message": f"Highly subjective +{points}",
+                        "risk_level": "medium",
+                        "placement_info": True  # <-- add this flag
                     })
                     total_risk += 5
             except Exception:

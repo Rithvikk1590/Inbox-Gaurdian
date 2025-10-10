@@ -202,3 +202,21 @@ textarea {
 .border-thick {
   border-width: 3px !important;
 }
+
+.placement-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px; /* space between badges */
+  margin-top: 2px;
+}
+
+.placement-badge {
+  background-color: #b30000;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 0 6px rgba(30, 144, 255, 0.6);
+  white-space: nowrap; /* prevent text from wrapping inside badge */
+}
