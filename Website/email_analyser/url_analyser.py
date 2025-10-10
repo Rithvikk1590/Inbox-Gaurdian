@@ -18,7 +18,7 @@ def analyse_urls(email_data):
 
         # IP address detection
         if re.match(r'https?://(\d{1,3}\.){3}\d{1,3}', url_lower):
-            risk += 30
+            risk += 12
             detected_risks.append("URL uses an IP address. Risk +30.")
             highlights.append({
                 "text": url,
@@ -29,7 +29,7 @@ def analyse_urls(email_data):
 
         # URL shortener detection (unchanged logic, now reads from separate file)
         if any(shortener in url_lower for shortener in url_shorteners):
-            risk += 25
+            risk += 8
             detected_risks.append("Shortened URL detected. Risk +25.")
             highlights.append({
                 "text": url,
@@ -40,12 +40,12 @@ def analyse_urls(email_data):
 
         # HTTP vs HTTPS
         elif url_lower.startswith("http://"):
-            risk += 10
+            risk += 5
             detected_risks.append("Insecure HTTP connection (not HTTPS). Risk +10.")
 
         # suspicious characters in domain
         elif re.search(r'[^\w.-]', re.sub(r'https?://', '', url_lower.split('/')[0])):
-            risk += 15
+            risk += 10
             detected_risks.append("URL contains special characters. Risk +15.")
 
         if detected_risks:

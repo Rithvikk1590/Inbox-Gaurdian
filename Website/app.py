@@ -21,10 +21,16 @@ def risk_verdict(points: int) -> str:
     """Return textual risk verdict based on total risk score."""
     if points is None:
         return "Unknown"
-    if points >= 60:
+    if points >= 90:
         return "Likely Phishing"
-    if points >= 25:
+    if points >= 75:
+        return "High Risk"
+    if points >= 60:
         return "Suspicious"
+    if points >= 40:
+        return "Caution"
+    if points >= 20:
+        return "Low Risk"
     return "Safe"
 
 # Map a CSV row to the dict shape expected by analyse_email_content()

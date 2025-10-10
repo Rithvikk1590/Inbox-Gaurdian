@@ -1,7 +1,10 @@
 import re
 import whois
 from datetime import datetime
-from config.whitelist import WHITELIST 
+from config.whitelist import WHITELIST
+from config.top_1000_domains import TOP_1000_DOMAINS
+
+DOMAINS = WHITELIST["trusted_domains"] + TOP_1000_DOMAINS
 
 def is_new_domain(domain):
     w = whois.whois(domain)
@@ -39,13 +42,13 @@ def check_whitelist(email_data: dict) -> dict:
         return {"risk_points": 20, "body_highlights": [{"text": sender, "hover_message": "Invalid sender format", "risk_level": "high"}]}
 
     # check with pre-defined whitelist.json
-    trusted_senders = [s.lower() for s in WHITELIST.get("trusted_senders", [])]
-    trusted_domains = [d.lower() for d in WHITELIST.get("trusted_domains", [])]
+    trusted_senders = [s.lower() for s in DOMAINS]
+    trusted_domains = [d.lower() for d in DOMAINS]
 
     if sender in trusted_senders or domain in trusted_domains:
         return True
     else:
-        points = 12
+        points = 4
         risk += points
         highlights.append({
             "text": sender,
@@ -57,7 +60,7 @@ def check_whitelist(email_data: dict) -> dict:
             suspicious_domains = []
             Dcheck = is_new_domain(domain)
             if Dcheck != None and Dcheck < 30:
-                points = 8
+                points = 5
                 risk += points
                 suspicious_domains.append(domain)
                 highlights.append({
