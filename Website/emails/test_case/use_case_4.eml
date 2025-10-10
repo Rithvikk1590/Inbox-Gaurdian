@@ -1,0 +1,26 @@
+From: alert@malicious-mailer.com
+To: victim@sit.singaporetech.edu.sg
+Subject: URGENT: Invoice attached - action required
+Date: Tue, 14 Oct 2025 09:00:00 +0800
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="BOUNDARY001"
+
+--BOUNDARY001
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+Hello,
+
+This is an urgent notice regarding your recent invoice. Please open the attached invoice immediately to avoid service interruption.
+
+Best regards,
+Billing Team
+
+--BOUNDARY001
+Content-Type: application/octet-stream; name="invoice.pdf.exe"
+Content-Disposition: attachment; filename="invoice.pdf.exe"
+Content-Transfer-Encoding: base64
+
+TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAA
+--BOUNDARY001--

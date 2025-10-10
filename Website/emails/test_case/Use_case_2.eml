@@ -1,0 +1,29 @@
+From: marketing@promo.example.com
+To: user@sit.singaporetech.edu.sg
+Subject: Congratulations! Claim your free prize now
+Date: Fri, 10 Oct 2025 10:00:00 +0800
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="BOUNDARY456"
+
+--BOUNDARY456
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+Hello,
+
+Congratulations! You have been selected to receive a free prize as part of our promotional campaign.
+Click the link below to claim your reward and view details:
+http://example.com/redeem
+
+Please open the attached document for more information about how to claim your prize.
+
+Best regards,
+Promo Team
+
+--BOUNDARY456
+Content-Type: application/msword; name="promo_details.doc"
+Content-Disposition: attachment; filename="promo_details.doc"
+Content-Transfer-Encoding: base64
+
+UEsDBBQABgAIAAAAIQAAAAAAAAAAAAAAAAAJAAAAdGVzdC50eHRQSwMEFAAGAAgAAAAhAAAAAA==
+--BOUNDARY456--
