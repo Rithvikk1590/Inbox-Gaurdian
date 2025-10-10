@@ -19,7 +19,7 @@ def analyse_urls(email_data):
         # IP address detection
         if re.match(r'https?://(\d{1,3}\.){3}\d{1,3}', url_lower):
             risk += 12
-            detected_risks.append("URL uses an IP address. Risk +{risk}.")
+            detected_risks.append(f"URL uses an IP address. Risk +{risk}.")
             highlights.append({
                 "text": url,
                 "hover_message": " ".join(detected_risks),
@@ -41,12 +41,12 @@ def analyse_urls(email_data):
         # HTTP vs HTTPS
         elif url_lower.startswith("http://"):
             risk += 5
-            detected_risks.append("Insecure HTTP connection (not HTTPS). Risk +{risk}.")
+            detected_risks.append(f"Insecure HTTP connection (not HTTPS). Risk +{risk}.")
 
         # suspicious characters in domain
         elif re.search(r'[^\w.-]', re.sub(r'https?://', '', url_lower.split('/')[0])):
             risk += 10
-            detected_risks.append("URL contains special characters. Risk +{risk}.")
+            detected_risks.append(f"URL contains special characters. Risk +{risk}.")
 
         if detected_risks:
             risk_level = "high" if any("+25" in r or "+40" in r for r in detected_risks) else "medium"
