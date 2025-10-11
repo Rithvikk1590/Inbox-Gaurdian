@@ -18,7 +18,7 @@ def _merge(into: dict, part: dict):
 def analyse_email_content(email_data: dict) -> dict:
     results = {"body_highlights": [], "total_risk_points": 0}
 
-    # ✅ Step 1: check whitelist first
+    # Check if email is whitelisted
     try:
         wl = check_whitelist(email_data)
         if wl is True:  # means whitelisted
@@ -33,7 +33,7 @@ def analyse_email_content(email_data: dict) -> dict:
     except Exception as e:
         print(f"[!] Whitelist check failed: {e}")
 
-    # ✅ Step 2: normal analysis flow
+    # Run other modules
     modules = [
         detect_keywords, #keyword_detector + position scorer
         check_edit_distance,
@@ -45,7 +45,8 @@ def analyse_email_content(email_data: dict) -> dict:
         try:
             _merge(results, fn(email_data))
         except Exception as e:
-            print(f"[!] Module {fn.__name__} failed: {e}")
+            # Returns the name of the current function object and prints out the exception
+            print(f"Module {fn.__name__} failed: {e}")
 
     print("results:", results)
     return results
