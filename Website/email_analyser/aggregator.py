@@ -22,12 +22,12 @@ def analyse_email_content(email_data: dict) -> dict:
     try:
         wl = check_whitelist(email_data)
         if wl is True:  # means whitelisted
-            print("[INFO] Whitelisted sender/domain — returning empty result.")
+            print("[INFO] Sender is whitelisted, skipping further analysis.")
             return {
                 "body_highlights": [],
                 "attachment_warnings": [],
                 "total_risk_points": 0,
-            }  # can try to return None, but in app.py help to check if None
+            }
         elif isinstance(wl, dict):  # if whitelist returns scoring info, merge it
             _merge(results, wl)
     except Exception as e:

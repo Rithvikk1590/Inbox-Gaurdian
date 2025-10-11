@@ -39,10 +39,11 @@
       </div>
 
       <div class="badge-box px-4 py-2 rounded-2 text-white fw-bold shadow-sm" style="background-color:
-      {% if analysis.verdict == 'Phishing' or analysis.verdict == 'Likely phishing' %}#dc3545
-      {% elif analysis.verdict == 'Suspicious' %}#ffc107; color:#000
-      {% else %}#28a745
-      {% endif %};">
+  {% if analysis.verdict in ['High Risk', 'Likely Phishing'] %}#dc3545
+  {% elif analysis.verdict in ['Suspicious', 'Caution'] %}#ffc107; color:#000
+  {% elif analysis.verdict in ['Low Risk', 'Safe'] %}#28a745
+  {% else %}#6c757d
+  {% endif %};">
         Rule-Based Verdict: <strong>{{ analysis.verdict }}</strong>
       </div>
 
@@ -72,12 +73,12 @@
 
   <!-- Body -->
   <section class="container my-3">
-  <div class="card-header bg-dark text-white p-2 d-flex justify-content-between align-items-center">
-    <h5 class="mb-0 text-white fw-semibold">Email</h5>
-    <div id="placement-info-container" class="placement-badges"></div>
-  </div>
-  <pre id="email-body" class="bg-body-tertiary text-dark p-2 m-0 rounded-0 border-0">{{ email.body | trim }}</pre>
-</section>
+    <div class="card-header bg-dark text-white p-2 d-flex justify-content-between align-items-center">
+      <h5 class="mb-0 text-white fw-semibold">Email</h5>
+      <div id="placement-info-container" class="placement-badges"></div>
+    </div>
+    <pre id="email-body" class="bg-body-tertiary text-dark p-2 m-0 rounded-0 border-0">{{ email.body | trim }}</pre>
+  </section>
 
   <!-- Attachments -->
   <section class="container my-3">
@@ -147,11 +148,12 @@
       if (!h || !h.text) continue;
       const key = `${h.section || 'any'}|${String(h.text).toLowerCase()}`;
       if (!mergedMap.has(key)) {
-        mergedMap.set(key, { 
-          text: h.text.trim(), 
-          section: h.section || 'any', 
-          risk_level: h.risk_level || 'medium', 
-          messages: [] });
+        mergedMap.set(key, {
+          text: h.text.trim(),
+          section: h.section || 'any',
+          risk_level: h.risk_level || 'medium',
+          messages: []
+        });
       }
       const msg = h.hover_message || h.message || h.reason || h.label || 'Flagged item';
       if (msg) mergedMap.get(key).messages.push(msg);
