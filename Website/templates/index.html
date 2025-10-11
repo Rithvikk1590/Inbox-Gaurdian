@@ -21,7 +21,7 @@
   <nav class="tabs d-flex justify-content-center gap-3">
     <div class="tab" data-tab="eml" aria-selected="true">Upload .eml</div>
     <div class="tab" data-tab="manual">Manual Upload</div>
-    <div class="tab" data-tab="csv">Upload CSV</div> 
+    <div class="tab" data-tab="csv">Upload CSV</div>
   </nav>
 
   <!-- Panels -->
@@ -52,17 +52,20 @@
       <form action="/manual_analysis" method="post">
         <div class="mb-3">
           <label for="manual-sender" class="form-label">Sender</label>
-          <input type="text" class="form-control" id="manual-sender" name="manual_sender" placeholder="sender's email" required>
+          <input type="text" class="form-control" id="manual-sender" name="manual_sender" placeholder="sender's email"
+            required>
         </div>
 
         <div class="mb-3">
           <label for="manual-subject" class="form-label">Subject</label>
-          <input type="text" class="form-control" id="manual-subject" name="manual_subject" placeholder="Subject title" required>
+          <input type="text" class="form-control" id="manual-subject" name="manual_subject" placeholder="Subject title"
+            required>
         </div>
 
         <div class="mb-3">
           <label for="manual-body" class="form-label">Body</label>
-          <textarea class="form-control" id="manual-body" name="manual_body" placeholder="Paste email text here..." rows="8" required></textarea>
+          <textarea class="form-control" id="manual-body" name="manual_body" placeholder="Paste email text here..."
+            rows="8" required></textarea>
         </div>
 
         <div class="text-center">
@@ -95,36 +98,37 @@
                 <td class="text-light">{{ email.sender }}</td>
               </tr>
               <tr>
-              <td class="fw-bold text-success">Attachments:</td>
-              <td class="text-light">
-                {% if email.attachments %}
+                <td class="fw-bold text-success">Attachments:</td>
+                <td class="text-light">
+                  {% if email.attachments %}
                   <ul class="mb-0" style="list-style: none; padding-left: 0;">
                     {% for a in email.attachments %}
-                      <li>{{ a }}</li>
+                    <li>{{ a }}</li>
                     {% endfor %}
                   </ul>
-                {% else %}
+                  {% else %}
                   <span class="text-muted">No attachments</span>
-                {% endif %}
-              </td>
-            </tr>
+                  {% endif %}
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
-        
+
         <div class="mt-4">
           <h6 class="text-success">Email Body:</h6>
-          <div class="border border-success rounded p-3" style="max-height: 400px; overflow-y: auto; background-color: #1a1a1a;">
+          <div class="border border-success rounded p-3"
+            style="max-height: 400px; overflow-y: auto; background-color: #1a1a1a;">
             <pre class="text-light mb-0" style="font-size: 0.9rem; white-space: pre-wrap;">{{ email.body }}</pre>
           </div>
         </div>
-        
+
         <div class="text-center mt-4">
           <a href="/analysis/{{ email_id }}" class="btn btn-warning btn-lg">
             Analyze Email
           </a>
         </div>
-        
+
         <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-success">
           <div class="text-muted small">
             Built with <strong>Kit</strong>
@@ -135,33 +139,33 @@
   </section>
   {% endif %}
 
-<!-- CSV Viewer Section (only shows when CSV is uploaded) -->
-{% if csv_table %}
-    <div class="csv-results">
-        <h2>CSV Analysis Results</h2>
-        <div style="margin: 10px 0; padding: 10px; border-radius: 8px; 
+  <!-- CSV Viewer Section (only shows when CSV is uploaded) -->
+  {% if csv_table %}
+  <div class="csv-results">
+    <h2>CSV Analysis Results</h2>
+    <div style="margin: 10px 0; padding: 10px; border-radius: 8px; 
                     background-color: #222; color: #fff; font-size: 18px;">
-            <strong>Total Risk: {{ total_risk }} points</strong>
-        </div>
-        <div class="csv-table">
-            {{ csv_table | safe }}
-        </div>
+      <strong>Total Risk: {{ total_risk }} points</strong>
     </div>
-{% endif %}
-
-{% if csv_analysis %}
-<div class="mt-4">
-  <h3>CSV Analysis Results</h3>
-  <div class="card shadow-sm p-4">
-    <ul class="list-group list-group-flush">
-      <li class="list-group-item">Suspicious subjects: {{ csv_analysis.suspicious_subject_count }}</li>
-      <li class="list-group-item">Suspicious attachments: {{ csv_analysis.suspicious_attachments }}</li>
-      <li class="list-group-item">Malformed sender emails: {{ csv_analysis.bad_sender_emails }}</li>
-      <li class="list-group-item">Spam-marked rows: {{ csv_analysis.spam_marked_rows }}</li>
-    </ul>
+    <div class="csv-table">
+      {{ csv_table | safe }}
+    </div>
   </div>
-</div>
-{% endif %}
+  {% endif %}
+
+  {% if csv_analysis %}
+  <div class="mt-4">
+    <h3>CSV Analysis Results</h3>
+    <div class="card shadow-sm p-4">
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">Suspicious subjects: {{ csv_analysis.suspicious_subject_count }}</li>
+        <li class="list-group-item">Suspicious attachments: {{ csv_analysis.suspicious_attachments }}</li>
+        <li class="list-group-item">Malformed sender emails: {{ csv_analysis.bad_sender_emails }}</li>
+        <li class="list-group-item">Spam-marked rows: {{ csv_analysis.spam_marked_rows }}</li>
+      </ul>
+    </div>
+  </div>
+  {% endif %}
 
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>

@@ -107,7 +107,6 @@ def upload_eml():
         return render_template("index.html", email=email_data, email_id=email_id)
     except Exception as e:
         print("Error parsing email:", e)
-        flash("Failed to parse the email. Please verify the file is a valid .eml.", "danger")
         return render_template("index.html")
 
 @app.route("/analysis/<email_id>")
