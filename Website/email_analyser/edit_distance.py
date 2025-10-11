@@ -100,7 +100,9 @@ def check_edit_distance(email_data):
     risk = 0
     highlights = []
     sender = (email_data.get("sender") or "").lower()
+    subject = (email_data.get("subject") or "")
     body = (email_data.get("body") or "")
+
 
     # 1 - Check if domain in sender is similar to known safe domains
     if "@" in sender:
@@ -109,7 +111,7 @@ def check_edit_distance(email_data):
 
     # 2 - Check if domain in subject is similar to known safe domains
     url_re = re.compile(r"\b((?:https?://)?[a-z0-9.-]+\.[a-z]{2,})(?:/[^\s]*)?", re.IGNORECASE)
-    subject_hits = url_re.findall(body)
+    subject_hits = url_re.findall(subject)
     for domain in subject_hits:
         domain = _domain_from_url_or_text(domain)
         risk += _score_domain_similarity(domain, highlights, "subject")
