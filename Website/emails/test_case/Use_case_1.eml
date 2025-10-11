@@ -1,0 +1,26 @@
+From: service@paypal.com
+To: student@sit.singaporetech.edu.sg
+Subject: Meeting Notes PDF
+Date: Thu, 10 Oct 2024 09:30:00 +0800
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="BOUNDARY123"
+
+--BOUNDARY123
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+Hello,
+
+Please find attached the meeting notes from yesterday’s class.  
+Let me know if you have any questions.
+
+Best regards,  
+Professor Tan
+
+--BOUNDARY123
+Content-Type: application/pdf; name="meeting_notes.pdf"
+Content-Disposition: attachment; filename="meeting_notes.pdf"
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjUKJcTl8uXrp/Og0MTGCjEgMCBvYmoKPDwvVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIF...
+--BOUNDARY123--

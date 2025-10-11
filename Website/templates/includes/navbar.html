@@ -12,7 +12,6 @@
         {% from 'includes/macros.html' import nav_link %}
         <ul class="navbar-nav ms-3">
             <li class="nav-item">{{ nav_link('/', 'Home') }}</li>
-            <li class="nav-item">{{ nav_link('/guide', 'Guide') }}</li>
             {% if show_analysis and email_id %}
                 <li class="nav-item">{{ nav_link('/analysis/' ~ email_id, 'Analysis') }}</li>
             {% else %}

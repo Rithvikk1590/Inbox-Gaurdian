@@ -1,7 +1,7 @@
 import re
 import whois
 from datetime import datetime
-from config.whitelist import WHITELIST 
+from config.whitelist import WHITELIST
 
 def is_new_domain(domain):
     w = whois.whois(domain)
@@ -31,24 +31,25 @@ def check_whitelist(email_data: dict) -> dict:
 
     # extract domain
     if "@" not in sender:
-        return {"risk_points": 20, "body_highlights": [{"text": sender, "hover_message": "Invalid sender format", "risk_level": "high"}]}
+        return {"risk_points": 8, "body_highlights": [{"text": sender, "hover_message": "Invalid sender format", "risk_level": "high"}]}
     try:
         _, domain = sender.rsplit("@", 1)
         domain = domain.strip(">")
     except ValueError:
-        return {"risk_points": 20, "body_highlights": [{"text": sender, "hover_message": "Invalid sender format", "risk_level": "high"}]}
+        return {"risk_points": 8, "body_highlights": [{"text": sender, "hover_message": "Invalid sender format", "risk_level": "high"}]}
 
     # check with pre-defined whitelist.json
-    trusted_senders = [s.lower() for s in WHITELIST.get("trusted_senders", [])]
-    trusted_domains = [d.lower() for d in WHITELIST.get("trusted_domains", [])]
+    trusted_senders = [s.lower() for s in WHITELIST["trusted_senders"]]
+    trusted_domains = [d.lower() for d in WHITELIST["trusted_domains"]]
 
     if sender in trusted_senders or domain in trusted_domains:
         return True
     else:
-        risk += 15
+        points = 4
+        risk += points
         highlights.append({
             "text": sender,
-            "hover_message": f"Sender not in whitelist: +{risk}",
+            "hover_message": f"Sender not in whitelist: +{points}",
             "risk_level": "medium"
         })
         # checking of domain age with WHOIS information (newer domain age = more likely phishing sender)
@@ -56,7 +57,7 @@ def check_whitelist(email_data: dict) -> dict:
             suspicious_domains = []
             Dcheck = is_new_domain(domain)
             if Dcheck != None and Dcheck < 30:
-                points = 8
+                points = 5
                 risk += points
                 suspicious_domains.append(domain)
                 highlights.append({

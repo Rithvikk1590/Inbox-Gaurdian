@@ -1,6 +1,5 @@
 from .whitelist_checker import check_whitelist
 from .keyword_detector import detect_keywords
-from .position_scorer import score_positions
 from .edit_distance import check_edit_distance
 from .url_analyser import analyse_urls
 from .attachment_rules import check_attachment_extensions
@@ -19,25 +18,24 @@ def _merge(into: dict, part: dict):
 def analyse_email_content(email_data: dict) -> dict:
     results = {"body_highlights": [], "total_risk_points": 0}
 
-    # ✅ Step 1: check whitelist first
+    # Check if email is whitelisted
     try:
         wl = check_whitelist(email_data)
         if wl is True:  # means whitelisted
-            print("[INFO] Whitelisted sender/domain — returning empty result.")
+            print("[INFO] Sender is whitelisted, skipping further analysis.")
             return {
                 "body_highlights": [],
                 "attachment_warnings": [],
                 "total_risk_points": 0,
-            }  # can try to return None, but in app.py help to check if None
+            }
         elif isinstance(wl, dict):  # if whitelist returns scoring info, merge it
             _merge(results, wl)
     except Exception as e:
         print(f"[!] Whitelist check failed: {e}")
 
-    # ✅ Step 2: normal analysis flow
+    # Run other modules
     modules = [
-        detect_keywords,
-        score_positions,
+        detect_keywords, #keyword_detector + position scorer
         check_edit_distance,
         analyse_urls,
         check_attachment_extensions,
@@ -47,7 +45,8 @@ def analyse_email_content(email_data: dict) -> dict:
         try:
             _merge(results, fn(email_data))
         except Exception as e:
-            print(f"[!] Module {fn.__name__} failed: {e}")
+            # Returns the name of the current function object and prints out the exception
+            print(f"Module {fn.__name__} failed: {e}")
 
     print("results:", results)
     return results

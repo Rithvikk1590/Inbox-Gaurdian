@@ -1,0 +1,33 @@
+From: "PayPal Support" <support@paypa1.com>
+To: user@sit.singaporetech.edu.sg
+Subject: URGENT: Verify your account now to avoid suspension
+Date: Mon, 20 Oct 2025 11:30:00 +0800
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="BOUNDARY999"
+
+--BOUNDARY999
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+Dear user,
+
+This is an urgent notice from PayPal Support. Your account may be suspended unless you verify your information immediately.
+Click the short link below to verify now:
+https://bit.ly/verify-paypal-acc
+
+Regards,
+PayPal Support Team
+
+--BOUNDARY999
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+<html><body>
+<p>Dear user,</p>
+<p><strong>This is an <span style="color:red">urgent</span> notice</strong> from <em>PayPal Support</em>. Your account may be <strong>suspended</strong> unless you <strong>verify</strong> your information immediately.</p>
+<p>Please click the link below to verify now:<br>
+<a href="https://bit.ly/verify-paypal-acc">https://bit.ly/verify-paypal-acc</a></p>
+<p>Regards,<br>PayPal Support Team</p>
+</body></html>
+
+--BOUNDARY999--

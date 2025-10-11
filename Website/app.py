@@ -1,16 +1,16 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, flash
 import uuid
 import re
 import pandas as pd
 import pickle
 
-# NEW imports from the package
-from email_analyser.parser import parse_eml_to_dict
-from email_analyser.aggregator import analyse_email_content
+# Import from email_analyser package
+from email_analyser import parse_eml_to_dict
+from email_analyser import analyse_email_content
 
-with open(r"./ML Model/vectorizer.pkl", "rb") as f:
+with open(r"../ML Model/vectorizer.pkl", "rb") as f:
     vectorizer = pickle.load(f)
-with open(r"./ML Model/m1_model.pkl", "rb") as f:
+with open(r"../ML Model/m1_model.pkl", "rb") as f:
     ml_model = pickle.load(f)
 
 email_store = {}  # global in-memory store
@@ -21,10 +21,16 @@ def risk_verdict(points: int) -> str:
     """Return textual risk verdict based on total risk score."""
     if points is None:
         return "Unknown"
-    if points >= 60:
+    if points >= 90:
         return "Likely Phishing"
-    if points >= 25:
+    if points >= 75:
+        return "High Risk"
+    if points >= 60:
         return "Suspicious"
+    if points >= 40:
+        return "Caution"
+    if points >= 20:
+        return "Low Risk"
     return "Safe"
 
 # Map a CSV row to the dict shape expected by analyse_email_content()
@@ -84,31 +90,22 @@ def _row_to_email_data(row: dict) -> dict:
 def home():
     return render_template("index.html")
 
-@app.route("/guide")
-def guide():
-    return render_template("guide.html")
-
 @app.route("/upload_eml", methods=["POST"])
 def upload_eml():
     try:
+        # Retrieve content of .eml file and 
         f = request.files.get('eml_file')
-        # if not f or not f.filename.endswith('.eml'):
-        #     return render_template("index.html")
-
-        email_id = str(uuid.uuid4())
         email_bytes = f.read()
         email_data = parse_eml_to_dict(email_bytes)
         email_data['filename'] = f.filename
 
-        # store in memory, not session cookie
+        # Create a unique identifier for the email
+        email_id = str(uuid.uuid4())
+        # Store the email data in memory so that it can be retrieved later
         email_store[email_id] = email_data
-
-        # just store the key in the session (small)
-        session['last_email_id'] = email_id
-
+    
         return render_template("index.html", email=email_data, email_id=email_id)
     except Exception as e:
-        
         print("Error parsing email:", e)
         return render_template("index.html")
 
@@ -121,10 +118,12 @@ def analysis(email_id):
 
         analysis = analyse_email_content(email_data)
 
-        # ✅ Ensure rule-based verdict exists
         total = analysis.get("total_risk_points")
-        if "verdict" not in analysis or not analysis["verdict"]:
-            analysis["verdict"] = risk_verdict(total)
+        # Cap total at 100
+        if total > 100:
+            analysis["total_risk_points"] = 100
+        # Calculate verdict
+        analysis["verdict"] = risk_verdict(total)
 
         # ML prediction on email body
         body_text = email_data.get("body", "")
@@ -206,15 +205,11 @@ def upload_csv():
 
             analysis = analyse_email_content(email_data)  # <- uses email_analyser
             total_points = int(analysis.get("total_risk_points", 0))
+            # Cap score at 100
+            if total_points > 100:
+                total_points = 100
 
-            verdict = analysis.get("verdict")
-            if not verdict:
-                if total_points >= 60:
-                    verdict = "Likely Phishing"
-                elif total_points >= 25:
-                    verdict = "Suspicious"
-                else:
-                    verdict = "Likely Legitimate"
+            verdict = risk_verdict(total_points)
 
             # ML Prediction
             email_body = email_data.get("body", "")
