@@ -204,14 +204,7 @@ def upload_csv():
             analysis = analyse_email_content(email_data)  # <- uses email_analyser
             total_points = int(analysis.get("total_risk_points", 0))
 
-            verdict = analysis.get("verdict")
-            if not verdict:
-                if total_points >= 60:
-                    verdict = "Likely Phishing"
-                elif total_points >= 25:
-                    verdict = "Suspicious"
-                else:
-                    verdict = "Likely Legitimate"
+            verdict = risk_verdict(total_points)
 
             # ML Prediction
             email_body = email_data.get("body", "")
