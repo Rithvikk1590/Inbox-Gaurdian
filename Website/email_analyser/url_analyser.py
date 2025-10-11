@@ -3,6 +3,14 @@ from config.url_shorteners import URL_SHORTENERS as url_shorteners
 from urllib.parse import urlparse
 
 def analyse_urls(email_data):
+    """
+    Analyses URLs found in the email body for phishing indicators.
+
+    Extracts all URLs or domain-like patterns, checks for risky traits such as 
+    IP-based links, URL shorteners, insecure HTTP usage, and suspicious 
+    characters. Assigns risk points and generates hover highlights for each 
+    detected issue.
+    """
     body = email_data.get("body", "")
     risk = 0
     highlights = []

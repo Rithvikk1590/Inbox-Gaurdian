@@ -103,7 +103,6 @@ def check_edit_distance(email_data):
     subject = (email_data.get("subject") or "")
     body = (email_data.get("body") or "")
 
-
     # 1 - Check if domain in sender is similar to known safe domains
     if "@" in sender:
         domain = sender.split("@")[-1].strip(">")

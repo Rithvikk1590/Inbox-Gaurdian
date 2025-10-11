@@ -31,12 +31,14 @@ def check_whitelist(email_data: dict) -> dict:
 
     # extract domain
     if "@" not in sender:
-        return {"risk_points": 8, "body_highlights": [{"text": sender, "hover_message": "Invalid sender format", "risk_level": "high"}]}
+        points = 8
+        return {"risk_points": points, "body_highlights": [{"text": sender, "hover_message": f"Invalid sender format +{points}", "risk_level": "medium"}]}
     try:
         _, domain = sender.rsplit("@", 1)
         domain = domain.strip(">")
     except ValueError:
-        return {"risk_points": 8, "body_highlights": [{"text": sender, "hover_message": "Invalid sender format", "risk_level": "high"}]}
+        points = 8
+        return {"risk_points": points, "body_highlights": [{"text": sender, "hover_message": f"Invalid sender format +{points}", "risk_level": "medium"}]}
 
     # check with pre-defined whitelist.json
     trusted_senders = [s.lower() for s in WHITELIST["trusted_senders"]]

@@ -5,7 +5,13 @@ from .url_analyser import analyse_urls
 from .attachment_rules import check_attachment_extensions
 
 
-def _merge(into: dict, part: dict):
+def _merge(into, part):
+    """
+    Merges analysis results from one module into the main result dictionary.
+
+    Appends highlight and warning entries and updates the total risk score 
+    with points from each analysis module.
+    """
     into.setdefault("body_highlights", [])
     into.setdefault("attachment_warnings", [])
     into["body_highlights"].extend(part.get("body_highlights", []))
@@ -15,7 +21,15 @@ def _merge(into: dict, part: dict):
     )
 
 
-def analyse_email_content(email_data: dict) -> dict:
+def analyse_email_content(email_data):
+    """
+    Runs all detection modules on the given email data.
+
+    If sender is whitelisted, then skip all other modules and return an 
+    empty result. Otherwise, run through the other analysis modules (keywords,
+    domain similarity, URLs, and attachments). Combines their results into 
+    a dictionary containing highlights, warnings, section, and total risk points.
+    """
     results = {"body_highlights": [], "total_risk_points": 0}
 
     # Check if email is whitelisted
@@ -45,7 +59,7 @@ def analyse_email_content(email_data: dict) -> dict:
         try:
             _merge(results, fn(email_data))
         except Exception as e:
-            # Returns the name of the current function object and prints out the exception
+            # Returns the name of the current function and prints out the exception
             print(f"[INFO] Module {fn.__name__} failed: {e}")
 
     print("results:", results)
