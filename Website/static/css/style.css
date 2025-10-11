@@ -1,20 +1,12 @@
 :root {
   --bg: #0d1410;
-  /* deep dark green background */
   --panel: #111b14;
-  /* slightly lighter greenish panel */
   --text: #e8f5e9;
-  /* soft off-white with green tint */
   --subtext: #b5c7b8;
-  /* muted light green-gray */
   --accent: #4caf50;
-  /* main green */
   --accent-2: #81c784;
-  /* lighter green */
   --border: #264d34;
-  /* card borders */
   --hover: #1a2b20;
-  /* hover background */
   --radius: 16px;
 }
 
@@ -144,7 +136,7 @@ textarea {
   resize: vertical;
 }
 
-/* Make the upload box big, centered, and readable even inside .card */
+/* Center the upload box */
 .tab-panel .drop-zone {
   min-height: 160px;
   display: flex;
@@ -156,9 +148,7 @@ textarea {
 .tab-panel .drop-zone p {
   margin: 0;
   color: var(--text) !important;
-  /* force readable text */
   opacity: 1;
-  /* in case any global opacity got applied */
 }
 
 /* If you keep the .card wrapper, ensure contrast inside it */
@@ -166,7 +156,6 @@ textarea {
   background: var(--panel) !important;
   border: 1px solid var(--border) !important;
 }
-
 
 /* Smooth transitions */
 .card, .alert {
