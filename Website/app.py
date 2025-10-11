@@ -97,21 +97,17 @@ def guide():
 @app.route("/upload_eml", methods=["POST"])
 def upload_eml():
     try:
+        # Retrieve content of .eml file and 
         f = request.files.get('eml_file')
-        # if not f or not f.filename.endswith('.eml'):
-        #     return render_template("index.html")
-
-        email_id = str(uuid.uuid4())
         email_bytes = f.read()
         email_data = parse_eml_to_dict(email_bytes)
         email_data['filename'] = f.filename
 
-        # store in memory, not session cookie
+        # Create a unique identifier for the email
+        email_id = str(uuid.uuid4())
+        # Store the email data in memory so that it can be retrieved later
         email_store[email_id] = email_data
-
-        # just store the key in the session (small)
-        session['last_email_id'] = email_id
-
+    
         return render_template("index.html", email=email_data, email_id=email_id)
     except Exception as e:
         
