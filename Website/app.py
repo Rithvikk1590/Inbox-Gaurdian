@@ -219,7 +219,7 @@ def upload_csv():
                 body_tfidf = vectorizer.transform([email_body])
                 mlmodel_verdict = ml_model.predict(body_tfidf)[0]
             else:
-                ml_verdict = "N/A"
+                mlmodel_verdict = "N/A"
 
             table_rows.append({
                 "sender": email_data.get("sender", ""),
