@@ -19,7 +19,7 @@ def position_scorer(email_text, keywords, high_threshold):
     
     return 1 - min(early_positions)  # 1.0 = very first word
 
-def detect_keywords(email_data: dict) -> dict:
+def load_words():
     keywords = {}
     # reading of extracted suspicious keyword txt file
     try:
@@ -44,25 +44,77 @@ def detect_keywords(email_data: dict) -> dict:
     if keywords:
         scores = list(keywords.values())
         high_threshold = np.percentile(scores, 80)  
+    return keywords, high_threshold
 
-    body = email_data.get("body", "")
-    highlights = []
-    highlighted_words = set()  # track which words already highlighted
-    total_risk = 0
-    keywords_risk = 0
+def textblob(clean_body, highlights):
+    try:
+        blob = TextBlob(clean_body)
+        # phishing emails often mimic official message, avoid overly emotional language
+        polarity = blob.sentiment.polarity #-1.0 (very neg) to +1.0 (very positive)
+        subjectivity = blob.sentiment.subjectivity #0.0 (objective/factual) to 1.0 (opinionated)
 
+        # negative polarity = fear/urgency intended
+        if polarity <= -0.4:
+            points = 10
+            highlights.append({
+                "text": "Urgent tone",
+                "hover_message": f"Fear/urgency detected +{points}",
+                "risk_level": "high",
+                "placement_info": True  
+            })
+            total_risk += 8
+        # high positive polarity = overly scammy/pleasing
+        elif polarity >= 0.6:
+            points = 5
+            highlights.append({
+                "text": "Overly positive tone",
+                "hover_message": f"Scam-like positivity +{points}",
+                "risk_level": "high",
+                "placement_info": True 
+            })
+            total_risk += 6
+
+        # high subjectivity (opinionated) = high emotional plea
+        if subjectivity >= 0.75:
+            points = 5
+            highlights.append({
+                "text": "Manipulative language",
+                "hover_message": f"Highly subjective +{points}",
+                "risk_level": "medium",
+                "placement_info": True
+            })
+            total_risk += 5
+        print("Cleaned body sample:", clean_body[:100])
+        print("Polarity:", polarity, "Subjectivity:", subjectivity)
+
+    except Exception:
+        pass
+
+def extract_url(body):
     # extract URL 
     url_pattern = re.compile(r'https?://[^\s<>"{}|\\^`\[\]]+')
     url_spans = []
     for match in url_pattern.finditer(body):
         url_spans.append((match.start(), match.end()))
+    return url_spans
 
-    def is_inside_any_url(start, end):
-        for u_start, u_end in url_spans:
-            if start >= u_start and end <= u_end:
-                return True
-        return False
-    
+def is_inside_any_url(start, end, url_spans):
+    for u_start, u_end in url_spans:
+        if start >= u_start and end <= u_end:
+            return True
+    return False
+
+def detect_keywords(email_data: dict) -> dict:
+    # loading and defining variables
+    keywords, high_threshold = load_words()
+    body = email_data.get("body", "")
+    highlights = []
+    highlighted_words = set() 
+    total_risk = 0
+    keywords_risk = 0
+
+    # url check
+    url_spans = extract_url(body)
     lines = body.splitlines()
     if lines:
         first = lines[0]
@@ -75,12 +127,13 @@ def detect_keywords(email_data: dict) -> dict:
                 "risk_level": "medium"
             })
 
+    # sus keyword risk assignment
     match_count = 0 
     for word, freq_score in keywords.items():
         pattern = r"\b" + re.escape(word) + r"\b" # word boundaries to avoid partial matches
         for match in re.finditer(pattern, body, re.IGNORECASE):
             start, end = match.span()
-            if is_inside_any_url(start, end):
+            if is_inside_any_url(start, end, url_spans):
                 continue # skip if sus words in URL
             if word not in highlighted_words:
                 matched_text = match.group(0)
@@ -103,72 +156,32 @@ def detect_keywords(email_data: dict) -> dict:
         "placement_info": True 
     })
 
+    # call position_scorer()
     if body.strip() and keywords:
         avg_pos = position_scorer(body, keywords, high_threshold)
         print('pos', avg_pos)
-        if avg_pos > 0.7:  # i.e., earliest high-risk word in first 30% of email
+        if avg_pos > 0.7:  # earliest high-risk word in first 30% of email
             bonus = 5
             total_risk += bonus
             highlights.append({
                 "text": "Keyword placement",
                 "hover_message": f"Suspicious words found early +{bonus}",
-                # "risk_level": "medium",
-                "placement_info": True  # <-- add this flag
+                "placement_info": True 
             })
 
     print(f"Total risk: {total_risk}")
     print("Highlights:", highlights)
     print(f"Total matches contributing to risk: {match_count}")
-    print('url',url_spans)
-    print(url_pattern)
 
+    # call textblob()
     if body.strip():
         # clean possible html for better analysis
         clean_body = re.sub(r"<[^>]+>", " ", body)
         clean_body = re.sub(r"\s+", " ", clean_body).strip()
-
         if clean_body:
             try:
-                blob = TextBlob(clean_body)
-                # phishing emails often mimic official message, avoid overly emotional language
-                polarity = blob.sentiment.polarity #-1.0 (very neg) to +1.0 (very positive)
-                subjectivity = blob.sentiment.subjectivity #0.0 (objective/factual) to 1.0 (opinionated)
-
-                # negative polarity = fear/urgency intended
-                if polarity <= -0.4:
-                    points = 10
-                    highlights.append({
-                        "text": "Urgent tone",
-                        "hover_message": f"Fear/urgency detected +{points}",
-                        "risk_level": "high",
-                        "placement_info": True  # <-- add this flag
-                    })
-                    total_risk += 8
-                # high positive polarity = overly scammy/pleasing
-                elif polarity >= 0.6:
-                    points = 5
-                    highlights.append({
-                        "text": "Overly positive tone",
-                        "hover_message": f"Scam-like positivity +{points}",
-                        "risk_level": "high",
-                        "placement_info": True  # <-- add this flag
-                    })
-                    total_risk += 6
-
-                # high subjectivity (opinionated) = high emotional plea
-                if subjectivity >= 0.75:
-                    points = 5
-                    highlights.append({
-                        "text": "Manipulative language",
-                        "hover_message": f"Highly subjective +{points}",
-                        "risk_level": "medium",
-                        "placement_info": True  # <-- add this flag
-                    })
-                    total_risk += 5
+                textblob(clean_body, highlights)
             except Exception:
                 pass
-
-        print("Cleaned body sample:", clean_body[:100])
-        print("Polarity:", polarity, "Subjectivity:", subjectivity)
 
     return {"risk_points": total_risk, "body_highlights": highlights}
