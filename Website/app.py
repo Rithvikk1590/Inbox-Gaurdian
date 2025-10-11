@@ -119,6 +119,9 @@ def analysis(email_id):
         analysis = analyse_email_content(email_data)
 
         total = analysis.get("total_risk_points")
+        # Cap total at 100
+        if total > 100:
+            analysis["total_risk_points"] = 100
         # Calculate verdict
         analysis["verdict"] = risk_verdict(total)
 
@@ -202,6 +205,9 @@ def upload_csv():
 
             analysis = analyse_email_content(email_data)  # <- uses email_analyser
             total_points = int(analysis.get("total_risk_points", 0))
+            # Cap score at 100
+            if total_points > 100:
+                total_points = 100
 
             verdict = risk_verdict(total_points)
 
