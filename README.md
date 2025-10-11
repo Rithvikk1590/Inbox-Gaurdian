@@ -9,6 +9,7 @@ A hybrid rule-based algortihm to help users determine if an uploaded email is ph
    - Edit Distance
    - URL Analyzer
    - Attachment Checker
+
 - Machine Learning Algorithm
 
 ## Installation
@@ -24,6 +25,7 @@ git clone https://github.com/Rithvikk1590/Inbox-Guardian.git
 It's recommended to use a virtual environment to isolate dependencies:
 
 ```bash
+cd Inbox_Guardian
 python -m venv env
 ```
 ### Windows:
@@ -38,10 +40,16 @@ source env/bin/activate
 ### 3. Install Dependencies
 Install required packages from requirements.txt:
 ```bash
+cd Website
 pip install -r requirements.txt
 ```
+
+Download spaCy model:
+```bash
+python -m spacy download en_core_web_sm
+```
+
 ### 4. Run the application
 ```bash
-cd Website
 python app.py
 ```
