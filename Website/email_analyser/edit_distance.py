@@ -76,7 +76,7 @@ def _score_domain_similarity(domain, highlights, section):
             risk += pts
             severity = "high" if dist == 1 else "medium"
             highlights.append({
-                "section": section,  # <- only change vs your original
+                "section": section,
                 "text": domain,
                 "hover_message": f"{'Sender' if section=='sender' else 'Link/domain'} domain distance to {legit} = {dist}: +{pts}",
                 "risk_level": severity
