@@ -160,6 +160,8 @@ def manual_analysis():
     analysis = analyse_email_content(email_data)
     # --- add verdict if missing ---
     total = analysis.get("total_risk_points")
+    if total > 100:
+        analysis["total_risk_points"] = 100
     if "verdict" not in analysis:
         analysis["verdict"] = risk_verdict(total)
 
