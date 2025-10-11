@@ -46,7 +46,7 @@ def analyse_email_content(email_data: dict) -> dict:
             _merge(results, fn(email_data))
         except Exception as e:
             # Returns the name of the current function object and prints out the exception
-            print(f"Module {fn.__name__} failed: {e}")
+            print(f"[INFO] Module {fn.__name__} failed: {e}")
 
     print("results:", results)
     return results
