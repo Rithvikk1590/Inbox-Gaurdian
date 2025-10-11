@@ -6,3 +6,4 @@ scikit-learn
 numpy
 nltk
 spacy
+tensorflow
