@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, flash
 import uuid
 import re
 import pandas as pd
@@ -90,10 +90,6 @@ def _row_to_email_data(row: dict) -> dict:
 def home():
     return render_template("index.html")
 
-@app.route("/guide")
-def guide():
-    return render_template("guide.html")
-
 @app.route("/upload_eml", methods=["POST"])
 def upload_eml():
     try:
@@ -110,8 +106,8 @@ def upload_eml():
     
         return render_template("index.html", email=email_data, email_id=email_id)
     except Exception as e:
-        
         print("Error parsing email:", e)
+        flash("Failed to parse the email. Please verify the file is a valid .eml.", "danger")
         return render_template("index.html")
 
 @app.route("/analysis/<email_id>")
@@ -123,7 +119,7 @@ def analysis(email_id):
 
         analysis = analyse_email_content(email_data)
 
-        # ✅ Ensure rule-based verdict exists
+        # Retrieve verdict
         total = analysis.get("total_risk_points")
         if "verdict" not in analysis or not analysis["verdict"]:
             analysis["verdict"] = risk_verdict(total)
