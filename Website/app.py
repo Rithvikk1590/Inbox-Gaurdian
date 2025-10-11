@@ -118,10 +118,9 @@ def analysis(email_id):
 
         analysis = analyse_email_content(email_data)
 
-        # Retrieve verdict
         total = analysis.get("total_risk_points")
-        if "verdict" not in analysis or not analysis["verdict"]:
-            analysis["verdict"] = risk_verdict(total)
+        # Calculate verdict
+        analysis["verdict"] = risk_verdict(total)
 
         # ML prediction on email body
         body_text = email_data.get("body", "")
