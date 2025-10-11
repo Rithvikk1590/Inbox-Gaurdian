@@ -4,9 +4,9 @@ import re
 import pandas as pd
 import pickle
 
-# NEW imports from the package
-from email_analyser.parser import parse_eml_to_dict
-from email_analyser.aggregator import analyse_email_content
+# Import from email_analyser package
+from email_analyser import parse_eml_to_dict
+from email_analyser import analyse_email_content
 
 with open(r"../ML Model/vectorizer.pkl", "rb") as f:
     vectorizer = pickle.load(f)
