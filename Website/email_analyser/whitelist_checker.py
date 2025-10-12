@@ -72,7 +72,7 @@ def check_whitelist(email_data: dict) -> dict:
                     "risk_level": "medium"
                 })
                 risk = risk
-                print(f"Domain is mature: {domain} ({Dcheck} days old)")
+                # print(f"Domain is mature: {domain} ({Dcheck} days old)")
         except Exception as e: # cannot find domain
             points = 4
             highlights.append({

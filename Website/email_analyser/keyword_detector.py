@@ -37,7 +37,7 @@ def load_words():
                 except ValueError:
                     continue  
     except FileNotFoundError:
-        print("keyword.txt not found, keyword module disabled")
+        # print("keyword.txt not found, keyword module disabled")
         keywords = {}
 
     # defining threshold for risk assignment
@@ -55,14 +55,14 @@ def textblob(clean_body, highlights):
 
         # negative polarity = fear/urgency intended
         if polarity <= -0.4:
-            points = 10
+            points = 5
             highlights.append({
                 "text": "Urgent tone",
                 "hover_message": f"Fear/urgency detected +{points}",
                 "risk_level": "high",
                 "placement_info": True  
             })
-            total_risk += 8
+            total_risk += points
         # high positive polarity = overly scammy/pleasing
         elif polarity >= 0.6:
             points = 5
@@ -72,7 +72,7 @@ def textblob(clean_body, highlights):
                 "risk_level": "high",
                 "placement_info": True 
             })
-            total_risk += 6
+            total_risk += points
 
         # high subjectivity (opinionated) = high emotional plea
         if subjectivity >= 0.75:
@@ -83,9 +83,9 @@ def textblob(clean_body, highlights):
                 "risk_level": "medium",
                 "placement_info": True
             })
-            total_risk += 5
-        print("Cleaned body sample:", clean_body[:100])
-        print("Polarity:", polarity, "Subjectivity:", subjectivity)
+            total_risk += points
+        # print("Cleaned body sample:", clean_body[:100])
+        # print("Polarity:", polarity, "Subjectivity:", subjectivity)
 
     except Exception:
         pass
@@ -159,7 +159,7 @@ def detect_keywords(email_data: dict) -> dict:
     # call position_scorer()
     if body.strip() and keywords:
         avg_pos = position_scorer(body, keywords, high_threshold)
-        print('pos', avg_pos)
+        # print('pos', avg_pos)
         if avg_pos > 0.7:  # earliest high-risk word in first 30% of email
             bonus = 5
             total_risk += bonus
@@ -169,9 +169,9 @@ def detect_keywords(email_data: dict) -> dict:
                 "placement_info": True 
             })
 
-    print(f"Total risk: {total_risk}")
-    print("Highlights:", highlights)
-    print(f"Total matches contributing to risk: {match_count}")
+    # print(f"Total risk: {total_risk}")
+    # print("Highlights:", highlights)
+    # print(f"Total matches contributing to risk: {match_count}")
 
     # call textblob()
     if body.strip():
