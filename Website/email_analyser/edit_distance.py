@@ -76,7 +76,7 @@ def _score_domain_similarity(domain, highlights, section):
             risk += pts
             severity = "high" if dist == 1 else "medium"
             highlights.append({
-                "section": section,  # <- only change vs your original
+                "section": section,
                 "text": domain,
                 "hover_message": f"{'Sender' if section=='sender' else 'Link/domain'} domain distance to {legit} = {dist}: +{pts}",
                 "risk_level": severity
@@ -100,6 +100,7 @@ def check_edit_distance(email_data):
     risk = 0
     highlights = []
     sender = (email_data.get("sender") or "").lower()
+    subject = (email_data.get("subject") or "")
     body = (email_data.get("body") or "")
 
     # 1 - Check if domain in sender is similar to known safe domains
@@ -107,10 +108,16 @@ def check_edit_distance(email_data):
         domain = sender.split("@")[-1].strip(">")
         risk += _score_domain_similarity(domain, highlights, "sender")
 
-    # 2 - Check URLs/domains in the body for similarity to known safe domains
+    # 2 - Check if domain in subject is similar to known safe domains
     url_re = re.compile(r"\b((?:https?://)?[a-z0-9.-]+\.[a-z]{2,})(?:/[^\s]*)?", re.IGNORECASE)
-    hits = url_re.findall(body)
-    for domain in hits:
+    subject_hits = url_re.findall(subject)
+    for domain in subject_hits:
+        domain = _domain_from_url_or_text(domain)
+        risk += _score_domain_similarity(domain, highlights, "subject")
+        
+    # 3 - Check URLs/domains in the body for similarity to known safe domains, using same regex used to check the subject field.
+    body_hits = url_re.findall(body)
+    for domain in body_hits:
         domain = _domain_from_url_or_text(domain)
         risk += _score_domain_similarity(domain, highlights, "body")
 

@@ -3,20 +3,26 @@ from config.url_shorteners import URL_SHORTENERS as url_shorteners
 from urllib.parse import urlparse
 
 def analyse_urls(email_data):
+    """
+    Analyses URLs found in the email body for phishing indicators.
+
+    Extracts all URLs or domain-like patterns, checks for risky traits such as 
+    IP-based links, URL shorteners, insecure HTTP usage, and suspicious 
+    characters. Assigns risk points and generates hover highlights for each 
+    detected issue.
+    """
     body = email_data.get("body", "")
     risk = 0
     highlights = []
 
     # Either starts with https:// or http:// or has a domain like structure (.com, .net, etc.)
     urls = re.findall(r'\b(?:https?://\S+|\S+\.\S+)\b', body)
-    
-    print("urls", urls)
+    # Sanity check
+    # print("[url_analyser.py] urls", urls)
 
     for url in urls:
         url_lower = url.lower()
-        print(url_lower)
         detected_risks = []
-        print("shortener", url_lower)
 
         # IP address detection
         if re.match(r'https?://(\d{1,3}\.){3}\d{1,3}', url_lower):

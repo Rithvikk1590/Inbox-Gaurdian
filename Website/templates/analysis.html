@@ -125,17 +125,26 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
+      // -------------------------------
+      // Select elements to highlight
+      // -------------------------------
       const targets = [
         document.getElementById('email-body'),
         document.getElementById('email-subject'),
         document.getElementById('email-from')
-      ].filter(Boolean);
+      ].filter(Boolean); // remove nulls if any element is missing
 
+      // Get highlights data from Flask (injected via Jinja)
       const highlights = {{ analysis.body_highlights | tojson | safe if analysis.body_highlights else '[]'
     }};
     if (!Array.isArray(highlights) || highlights.length === 0) return;
 
+    // -------------------------------
+    // Utility functions for escaping
+    // -------------------------------
+    // Escape regex special characters
     const escRe = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Escape HTML entities for safe rendering
     const escHtml = s => String(s)
       .replace(/&/g, '&amp;')
       .replace(/"/g, '&quot;')
@@ -143,10 +152,15 @@
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
 
+    // -------------------------------
+    // Merge duplicate highlight entries
+    // -------------------------------
     const mergedMap = new Map();
     for (const h of highlights) {
       if (!h || !h.text) continue;
       const key = `${h.section || 'any'}|${String(h.text).toLowerCase()}`;
+
+      // Initialize new merged entry if not present
       if (!mergedMap.has(key)) {
         mergedMap.set(key, {
           text: h.text.trim(),
@@ -155,31 +169,47 @@
           messages: []
         });
       }
+
+      // Combine all tooltip messages for identical highlights
       const msg = h.hover_message || h.message || h.reason || h.label || 'Flagged item';
       if (msg) mergedMap.get(key).messages.push(msg);
     }
+
     const merged = Array.from(mergedMap.values());
 
+    // -------------------------------
+    // Apply highlights to text content
+    // -------------------------------
     targets.forEach(el => {
       let content = el.textContent;
+
       merged.forEach(h => {
+        // Build regex for finding occurrences of the text
         const regex = new RegExp(escRe(h.text), 'gi');
+        // Join tooltip messages with bullet points
         const tooltip = escHtml(h.messages.filter(Boolean).join('&#10;• '));
 
-        // assign colour by risk level
+        // Assign highlight color based on risk level
         let color = "#fff"; // default white
         if (h.risk_level === "high") color = "#ff4d4d";      // red
         else if (h.risk_level === "medium") color = "#ffcc00"; // amber
         else if (h.risk_level === "low") color = "#7CFC00";    // green
         else if (h.risk_level === "info") color = "#00bfff";   // blue
 
+        // Create highlighted <span> element with tooltip data
         const replacement =
           `<span class="ig-highlight" style="display:inline; vertical-align:baseline; background-color:${color}; color:black; font-weight:bold; padding:1px 2px; border-radius:3px; line-height:1;" data-tooltip="${tooltip}">${escHtml(h.text)}</span>`;
 
+        // Replace occurrences of flagged text with highlighted span
         content = content.replace(regex, replacement);
       });
+
+      // Replace element’s text content with highlighted HTML
       el.innerHTML = content;
 
+      // -------------------------------
+      // Tooltip event listeners
+      // -------------------------------
       el.addEventListener('mouseover', e => {
         const t = e.target.closest('.ig-highlight');
         if (!t) return;
@@ -189,14 +219,17 @@
       el.addEventListener('mouseout', hideTooltip);
     });
 
+    // -------------------------------
+    // Placement badge generation
+    // -------------------------------
     const container = document.getElementById('placement-info-container');
     if (container) {
-      container.innerHTML = ''; // or use remove() on children for better perf if needed
+      container.innerHTML = ''; // clear existing content
 
-      // Filter all placement highlights
+      // Filter highlights that contain placement info
       const placementHighlights = highlights.filter(h => h.placement_info);
 
-      // Create a badge for each
+      // Create a small badge for each placement highlight
       placementHighlights.forEach(highlight => {
         const badge = document.createElement('div');
         badge.className = 'placement-badge';
@@ -204,27 +237,34 @@
         container.appendChild(badge);
       });
 
-      // Optional: hide container if no badges
+      // Hide container if no placement badges exist
       container.style.display = placementHighlights.length ? 'flex' : 'none';
     }
-    });
+  });
 
+    // -------------------------------
+    // Tooltip helper functions
+    // -------------------------------
+
+    // Display tooltip near highlighted text
     function showTooltip(event, text, bgColor) {
       const tooltip = document.getElementById('customTooltip');
       const tooltipText = document.getElementById('tooltipText');
-      const decoded = (text || '').replace(/&#10;/g, '\n');
+      const decoded = (text || '').replace(/&#10;/g, '\n'); // replace encoded line breaks
       tooltipText.textContent = decoded;
       tooltip.style.backgroundColor = bgColor || '#333';
       tooltip.style.display = 'block';
       positionTooltip(event);
     }
 
+    // Position tooltip relative to mouse cursor
     function positionTooltip(event) {
       const tooltip = document.getElementById('customTooltip');
       tooltip.style.left = `${event.pageX - tooltip.offsetWidth / 2}px`;
       tooltip.style.top = `${event.pageY - tooltip.offsetHeight - 12}px`;
     }
 
+    // Hide tooltip when not hovering over highlight
     function hideTooltip() {
       document.getElementById('customTooltip').style.display = 'none';
     }
