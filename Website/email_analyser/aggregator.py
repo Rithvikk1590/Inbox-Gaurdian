@@ -62,5 +62,6 @@ def analyse_email_content(email_data):
             # Returns the name of the current function and prints out the exception
             print(f"[INFO] Module {fn.__name__} failed: {e}")
 
-    print("results:", results)
+    # Sanity check, print results
+    # print("[aggregator.py] results:", results)
     return results
